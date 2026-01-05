@@ -124,29 +124,3 @@ export default function CreateCastingModal({
     </AnimatePresence>
   );
 }
-
-              {step === 4 && <StepReview formData={formData} />}
-            </div>
-
-            {/* Footer */}
-            <div className="flex justify-between border-t border-white/10 p-6">
-              <button
-                onClick={step === 0 ? onClose : prev}
-                className="text-sm text-white/60 hover:text-white"
-              >
-                {step === 0 ? "Cancel" : "Back"}
-              </button>
-
-              <button
-                onClick={step === steps.length - 1 ? () => {} : next}
-                className="rounded-lg bg-[#4CC9F0] px-6 py-2 text-sm font-semibold text-black"
-              >
-                {step === steps.length - 1 ? "Publish Casting" : "Continue"}
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}

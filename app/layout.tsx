@@ -1,5 +1,6 @@
 import "./globals.css";
 import Header from "@/app/components/header";
+import { Providers } from "@/app/providers";
 import { DM_Sans, Libre_Baskerville } from "next/font/google";
 
 const bodyFont = DM_Sans({
@@ -26,8 +27,10 @@ export default function RootLayout({
       <body
         className={`${bodyFont.variable} ${headingFont.variable} antialiased`}
       >
-        <Header />
-        <main >{children}</main>
+        <Providers>
+          <Header />
+          <main >{children}</main>
+        </Providers>
       </body>
     </html>
   );

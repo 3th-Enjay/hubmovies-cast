@@ -208,3 +208,57 @@ export async function sendMessageNotificationEmail(
   return sendEmail({ to: talentEmail, subject, html });
 }
 
+/**
+ * Send email verification email
+ * Used by NextAuth email provider
+ */
+export async function sendVerificationEmail(
+  userEmail: string,
+  verificationUrl: string
+): Promise<boolean> {
+  const subject = "Verify Your Email - HubMovies Cast";
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #0b0b0c; color: #f4f4f5; padding: 20px; text-align: center; }
+          .content { background: #fff; padding: 30px; border: 1px solid #e0e0e0; }
+          .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+          .button { display: inline-block; padding: 12px 24px; background: #c7a24b; color: #000; text-decoration: none; border-radius: 4px; margin-top: 20px; font-weight: bold; }
+          .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; color: #856404; }
+          .url-fallback { word-break: break-all; color: #666; font-size: 12px; margin-top: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>HubMovies Cast</h1>
+          </div>
+          <div class="content">
+            <h2>Verify Your Email Address</h2>
+            <p>Welcome to HubMovies Cast! Please verify your email address to complete your account setup.</p>
+            <p>Click the button below to verify your email:</p>
+            <a href="${verificationUrl}" class="button">Verify Email</a>
+            <div class="url-fallback">
+              <p>If the button doesn't work, copy and paste this link into your browser:</p>
+              <p>${verificationUrl}</p>
+            </div>
+            <div class="warning">
+              <strong>⚠️ Security Notice:</strong> This verification link will expire in 24 hours. If you didn't create an account, please ignore this email.
+            </div>
+          </div>
+          <div class="footer">
+            <p>This is an automated email from HubMovies Cast.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({ to: userEmail, subject, html });
+}

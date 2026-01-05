@@ -191,6 +191,34 @@ export function calculateDirectorTrustScore(user: any): number {
 }
 
 /**
+ * Resolve talent verification tier based on profile completion and email verification
+ * Returns: "BASIC" | "COMPLETE" | "VERIFIED" | "FEATURED"
+ */
+export function resolveTalentTier(user: any): "BASIC" | "COMPLETE" | "VERIFIED" | "FEATURED" {
+  if (!user.emailVerified) {
+    return "BASIC";
+  }
+
+  const completion = calculateTalentProfileCompletion(user);
+  
+  if (completion.score >= MIN_PROFILE_COMPLETION) {
+    // Auto-upgrade to COMPLETE when threshold met
+    if (!user.verificationTier || user.verificationTier === "BASIC") {
+      return "COMPLETE";
+    }
+    // Don't downgrade VERIFIED or FEATURED (manual/admin only)
+    return user.verificationTier as "COMPLETE" | "VERIFIED" | "FEATURED";
+  } else {
+    // Email verified but < 70% completion = BASIC
+    if (!user.verificationTier || user.verificationTier === "COMPLETE") {
+      return "BASIC";
+    }
+    // Don't downgrade VERIFIED or FEATURED
+    return user.verificationTier as "BASIC" | "VERIFIED" | "FEATURED";
+  }
+}
+
+/**
  * Update director trust score incrementally
  * Use this for activity-based updates (job posted, application reviewed, etc.)
  * Never calculated on the fly - adjusted by actions

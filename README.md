@@ -152,15 +152,96 @@ hubmovies-cast/
 ├─ web/                          # Next.js application root
 │  ├─ app/                       # Next.js App Router directory
 │  │  ├─ api/                    # API routes
-│  │  │  └─ apply/
-│  │  │     ├─ route.ts          # POST endpoint for job applications
-│  │  │     └─ status/
-│  │  │        └─ route.ts       # GET endpoint to check applied status
+│  │  │  ├─ apply/
+│  │  │  │  ├─ route.ts          # POST endpoint for job applications
+│  │  │  │  └─ status/
+│  │  │  │     └─ route.ts       # GET endpoint to check applied status
+│  │  │  ├─ auth/
+│  │  │  │  ├─ [...nextauth]/
+│  │  │  │  │  └─ route.ts       # NextAuth.js authentication
+│  │  │  │  ├─ complete/
+│  │  │  │  │  └─ route.ts       # Complete signup flow
+│  │  │  │  ├─ forgot-password/
+│  │  │  │  │  └─ route.ts       # Password reset request
+│  │  │  │  ├─ resend-verification/
+│  │  │  │  │  └─ route.ts       # Resend email verification
+│  │  │  │  └─ reset-password/
+│  │  │  │     └─ route.ts       # Password reset handler
+│  │  │  ├─ director/
+│  │  │  │  ├─ applications/
+│  │  │  │  │  ├─ route.ts       # GET director applications
+│  │  │  │  │  ├─ [id]/
+│  │  │  │  │  │  └─ route.ts    # PATCH update application status
+│  │  │  │  │  └─ bulk/
+│  │  │  │  │     └─ route.ts    # Bulk update applications
+│  │  │  │  ├─ jobs/
+│  │  │  │  │  ├─ route.ts       # GET/POST director jobs
+│  │  │  │  │  └─ [id]/
+│  │  │  │  │     └─ route.ts    # PATCH/DELETE job
+│  │  │  │  ├─ messages/
+│  │  │  │  │  ├─ route.ts       # POST send message
+│  │  │  │  │  └─ threads/
+│  │  │  │  │     └─ route.ts    # GET message threads
+│  │  │  │  └─ profile/
+│  │  │  │     └─ route.ts       # GET director profile/trust
+│  │  │  ├─ jobs/
+│  │  │  │  └─ route.ts          # GET public job listings
+│  │  │  ├─ messages/
+│  │  │  │  └─ route.ts          # GET messages (universal)
+│  │  │  ├─ notifications/
+│  │  │  │  ├─ route.ts          # GET/PATCH notifications
+│  │  │  │  └─ unread-count/
+│  │  │  │     └─ route.ts       # GET unread count
+│  │  │  ├─ talent/
+│  │  │  │  ├─ applications/
+│  │  │  │  │  └─ route.ts        # GET talent applications
+│  │  │  │  ├─ messages/
+│  │  │  │  │  └─ route.ts       # GET talent messages
+│  │  │  │  └─ profile/
+│  │  │  │     ├─ route.ts       # GET/PATCH talent profile
+│  │  │  │     └─ completion/
+│  │  │  │        └─ route.ts     # GET profile completion
+│  │  │  └─ upload/
+│  │  │     └─ route.ts          # POST file upload to Cloudinary
+│  │  ├─ auth/                    # Authentication pages
+│  │  │  ├─ page.tsx             # Auth landing page
+│  │  │  ├─ check-email/
+│  │  │  │  └─ page.tsx          # Email check page
+│  │  │  ├─ complete/
+│  │  │  │  └─ page.tsx          # Complete signup page
+│  │  │  ├─ email/
+│  │  │  │  └─ page.tsx          # Email login page
+│  │  │  ├─ error/
+│  │  │  │  └─ page.tsx          # Auth error page
+│  │  │  ├─ forgot-password/
+│  │  │  │  └─ page.tsx          # Forgot password page
+│  │  │  ├─ password/
+│  │  │  │  └─ page.tsx          # Password login page
+│  │  │  ├─ reset-password/
+│  │  │  │  └─ [token]/
+│  │  │  │     └─ page.tsx       # Reset password page
+│  │  │  └─ verify-email/
+│  │  │     └─ page.tsx          # Email verification page
 │  │  ├─ components/             # React components
 │  │  │  ├─ casting-director-verification-modal.tsx
 │  │  │  ├─ create-casting-modal/
 │  │  │  │  ├─ create-casting-modal.tsx
 │  │  │  │  └─ step-basic.tsx
+│  │  │  ├─ director/
+│  │  │  │  └─ dashboard/
+│  │  │  │     ├─ components/
+│  │  │  │     │  ├─ application-row.tsx
+│  │  │  │     │  ├─ applications-panel.tsx
+│  │  │  │     │  ├─ director-stats.tsx
+│  │  │  │     │  ├─ director-trust-panel.tsx
+│  │  │  │     │  ├─ job-card.tsx
+│  │  │  │     │  └─ job-list.tsx
+│  │  │  │     ├─ modals/
+│  │  │  │     │  ├─ create-job-modal.tsx
+│  │  │  │     │  ├─ edit-job-modal.tsx
+│  │  │  │     │  ├─ manage-applicants-modal.tsx
+│  │  │  │     │  └─ message-modal.tsx
+│  │  │  │     └─ page.tsx       # Director dashboard
 │  │  │  ├─ header.tsx           # Fixed cinematic navigation
 │  │  │  ├─ hero.tsx             # Full-screen cinematic hero
 │  │  │  ├─ job-detail-modal.tsx # Job details modal
@@ -168,18 +249,54 @@ hubmovies-cast/
 │  │  │  ├─ modals/
 │  │  │  │  ├─ apply-flow-modal.tsx  # Multi-step application flow
 │  │  │  │  └─ modal-shell.tsx       # Reusable modal wrapper
+│  │  │  ├─ notifications/
+│  │  │  │  ├─ notification-bell.tsx   # Notification bell icon
+│  │  │  │  └─ notification-dropdown.tsx  # Notification dropdown
+│  │  │  ├─ talent/
+│  │  │  │  └─ messages-view.tsx
 │  │  │  ├─ talent-profile-modal.tsx # Talent profile modal
 │  │  │  ├─ talents-preview.tsx      # Talents grid preview
 │  │  │  └─ verification-upgrade-modal.tsx
+│  │  ├─ director/
+│  │  │  └─ messages/
+│  │  │     └─ page.tsx          # Director messages page
+│  │  ├─ how-it-works/
+│  │  │  └─ page.tsx            # How It Works page
+│  │  ├─ jobs/
+│  │  │  └─ page.tsx            # Jobs listing page
+│  │  ├─ pricing/
+│  │  │  └─ page.tsx            # Pricing page
+│  │  ├─ talent/
+│  │  │  ├─ dashboard/
+│  │  │  │  ├─ components/
+│  │  │  │  │  ├─ application-detail-modal.tsx
+│  │  │  │  │  └─ message-thread-modal.tsx
+│  │  │  │  └─ page.tsx         # Talent dashboard
+│  │  │  └─ profile/
+│  │  │     └─ page.tsx         # Talent profile page
+│  │  ├─ talents/
+│  │  │  └─ page.tsx            # Talents directory page
 │  │  ├─ favicon.ico
 │  │  ├─ globals.css             # Theme, noise, sheen, typography
-│  │  ├─ layout.tsx              # Root layout component
-│  │  └─ page.tsx                 # Landing page
+│  │  ├─ layout.tsx              # Root layout with SessionProvider
+│  │  ├─ page.tsx                # Landing page
+│  │  └─ providers.tsx           # SessionProvider wrapper
 │  ├─ lib/                       # Utility libraries
+│  │  ├─ auth-adapter.ts         # NextAuth Mongoose adapter
+│  │  ├─ auth-helpers.ts         # Auth utility functions
 │  │  ├─ cloudinary.ts           # Cloudinary media upload client
-│  │  └─ mongodb.ts              # MongoDB connection handler
+│  │  ├─ director-trust.ts       # Director trust system logic
+│  │  ├─ email.ts                # Email sending utilities
+│  │  ├─ mongodb.ts              # MongoDB connection handler
+│  │  └─ profile-completion.ts   # Profile completion calculation
 │  ├─ models/                    # Database models
-│  │  └─ application.ts          # Application schema/model
+│  │  ├─ application.ts          # Application schema/model
+│  │  ├─ job.ts                  # Job posting schema
+│  │  ├─ message.ts              # Message schema
+│  │  ├─ notification.ts         # Notification schema
+│  │  ├─ session.ts             # NextAuth session schema
+│  │  ├─ user.ts                 # User schema
+│  │  └─ verification-token.ts   # Email verification token schema
 │  ├─ public/                    # Static assets
 │  │  ├─ file.svg
 │  │  ├─ globe.svg
@@ -187,7 +304,10 @@ hubmovies-cast/
 │  │  ├─ noise.png
 │  │  ├─ vercel.svg
 │  │  └─ window.svg
+│  ├─ types/
+│  │  └─ next-auth.d.ts         # NextAuth type definitions
 │  ├─ eslint.config.mjs          # ESLint configuration
+│  ├─ middleware.ts              # Next.js middleware (auth, verification)
 │  ├─ next.config.ts             # Next.js configuration
 │  ├─ next-env.d.ts              # Next.js TypeScript definitions
 │  ├─ package.json               # Dependencies and scripts
