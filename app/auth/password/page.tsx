@@ -14,7 +14,7 @@ export default function PasswordLoginPage() {
   const [establishingSession, setEstablishingSession] = useState(false);
   const [error, setError] = useState("");
 
-  const waitForSession = async (maxAttempts = 30, delay = 500): Promise<any> => {
+  const waitForSession = async (maxAttempts = 60, delay = 500): Promise<any> => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         const sessionRes = await fetch("/api/auth/session", {
@@ -31,17 +31,19 @@ export default function PasswordLoginPage() {
           }
         }
       } catch (error) {
-        // Continue trying
-        console.log(`Session attempt ${attempt} failed, retrying...`);
+        // Continue trying - don't log every attempt to avoid spam
+        if (attempt % 10 === 0) {
+          console.log(`Session attempt ${attempt}/${maxAttempts}...`);
+        }
       }
 
-      // Wait before next attempt
+      // Wait before next attempt (except on last attempt)
       if (attempt < maxAttempts) {
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
 
-    // If we get here, session wasn't established
+    // If we get here after all attempts, throw error
     throw new Error("Session establishment timeout");
   };
 
@@ -66,8 +68,8 @@ export default function PasswordLoginPage() {
         setLoading(false);
 
         try {
-          // Keep trying to establish session until successful
-          const session = await waitForSession(30, 500);
+          // Keep trying to establish session until successful (up to 60 attempts = 30 seconds)
+          const session = await waitForSession(60, 500);
           
           if (session?.user) {
             const userRole = session.user.role;
@@ -87,13 +89,15 @@ export default function PasswordLoginPage() {
             setEstablishingSession(false);
           }
         } catch (sessionError) {
-          // Keep retrying - don't give up
-          console.error("Session establishment error, retrying:", sessionError);
+          // If initial attempt fails, try again with more attempts and longer delay
+          console.log("First session attempt failed, retrying with longer delays...");
           
-          // Try one more time with longer delay
           try {
+            // Wait a bit longer before retry
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            const session = await waitForSession(20, 750);
+            
+            // Retry with more attempts and longer delay
+            const session = await waitForSession(80, 750);
             
             if (session?.user) {
               const userRole = session.user.role;
@@ -112,28 +116,32 @@ export default function PasswordLoginPage() {
               setEstablishingSession(false);
             }
           } catch (retryError) {
-            setError("Session is taking longer than expected. Please wait...");
-            // Continue showing loader and try again in background
-            setTimeout(async () => {
-              try {
-                const session = await waitForSession(40, 1000);
-                if (session?.user) {
-                  const userRole = session.user.role;
-                  if (userRole === "ADMIN") {
-                    window.location.href = "/admin/jobs";
-                  } else if (userRole === "DIRECTOR") {
-                    window.location.href = "/director/dashboard";
-                  } else if (userRole === "TALENT") {
-                    window.location.href = "/talent/dashboard";
-                  } else {
-                    window.location.href = "/";
-                  }
+            // Final attempt with even more patience
+            console.log("Second session attempt failed, final retry...");
+            
+            try {
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+              const session = await waitForSession(100, 1000);
+              
+              if (session?.user) {
+                const userRole = session.user.role;
+                if (userRole === "ADMIN") {
+                  window.location.href = "/admin/jobs";
+                } else if (userRole === "DIRECTOR") {
+                  window.location.href = "/director/dashboard";
+                } else if (userRole === "TALENT") {
+                  window.location.href = "/talent/dashboard";
+                } else {
+                  window.location.href = "/";
                 }
-              } catch (finalError) {
-                setError("Unable to establish session. Please refresh the page and try again.");
+              } else {
+                setError("Unable to establish session after multiple attempts. Please refresh the page and try again.");
                 setEstablishingSession(false);
               }
-            }, 2000);
+            } catch (finalError) {
+              setError("Session establishment is taking too long. Please refresh the page and try logging in again.");
+              setEstablishingSession(false);
+            }
           }
         }
       }
@@ -261,18 +269,18 @@ export default function PasswordLoginPage() {
               Sign Up
             </Link>
           </p>
-          <button
-            onClick={() => router.push("/auth/forgot-password")}
+          <Link
+            href="/auth/forgot-password"
             className="block w-full text-sm text-[var(--text-secondary)] hover:text-white transition font-body"
           >
             Forgot Password?
-          </button>
-          <button
-            onClick={() => router.push("/auth")}
+          </Link>
+          <Link
+            href="/auth"
             className="block w-full text-sm text-[var(--text-secondary)] hover:text-white transition font-body"
           >
             ← Back to start
-          </button>
+          </Link>
         </div>
       </motion.div>
     </div>
