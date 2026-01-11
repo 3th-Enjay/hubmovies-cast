@@ -87,7 +87,6 @@ export async function POST(req: Request) {
 
     // Save user changes
     await user.save();
-    updatedUser = await User.findById(targetUserId);
 
     // Create audit log entry
     await AuditLog.create({
@@ -100,13 +99,14 @@ export async function POST(req: Request) {
       afterState: {
         ...afterState,
         // Include current state for reference
-        verificationTier: updatedUser?.verificationTier,
-        trustScore: updatedUser?.trustScore,
+        verificationTier: user.verificationTier,
+        trustScore: user.trustScore,
       },
       reason: reason.trim(),
       metadata,
     });
 
+    // Fetch updated user for response
     const finalUser = await User.findById(targetUserId);
     if (!finalUser) {
       return NextResponse.json(

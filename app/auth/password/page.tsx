@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function PasswordLoginPage() {
   const router = useRouter();
@@ -27,7 +28,8 @@ export default function PasswordLoginPage() {
       if (result?.error) {
         setError("Invalid email or password");
       } else if (result?.ok) {
-        // Redirect based on role (will be handled by middleware)
+        // Redirect and let middleware handle role-based routing
+        // The session will be available after redirect
         router.push("/");
         router.refresh();
       }

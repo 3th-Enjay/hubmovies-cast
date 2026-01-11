@@ -47,7 +47,7 @@ export default function Header() {
             Dashboard
           </Link>
           <Link
-            href="/login"
+            href="/auth/password"
             className="text-sm text-[var(--text-secondary)] hover:text-white transition"
           >
             Sign In
