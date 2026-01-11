@@ -14,7 +14,7 @@ export default function PasswordLoginPage() {
   const [establishingSession, setEstablishingSession] = useState(false);
   const [error, setError] = useState("");
 
-  const waitForSession = async (maxAttempts = 60, delay = 500): Promise<any> => {
+  const waitForSession = async (maxAttempts = 20, delay = 300): Promise<any> => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         const sessionRes = await fetch("/api/auth/session", {
@@ -32,7 +32,7 @@ export default function PasswordLoginPage() {
         }
       } catch (error) {
         // Continue trying - don't log every attempt to avoid spam
-        if (attempt % 10 === 0) {
+        if (attempt % 5 === 0) {
           console.log(`Session attempt ${attempt}/${maxAttempts}...`);
         }
       }
@@ -68,8 +68,12 @@ export default function PasswordLoginPage() {
         setLoading(false);
 
         try {
-          // Keep trying to establish session until successful (up to 60 attempts = 30 seconds)
-          const session = await waitForSession(60, 500);
+          // With JWT strategy, session should be available quickly
+          // Wait a small delay for the cookie to be set
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          
+          // Keep trying to establish session until successful
+          const session = await waitForSession(20, 300);
           
           if (session?.user) {
             const userRole = session.user.role;
@@ -89,15 +93,12 @@ export default function PasswordLoginPage() {
             setEstablishingSession(false);
           }
         } catch (sessionError) {
-          // If initial attempt fails, try again with more attempts and longer delay
-          console.log("First session attempt failed, retrying with longer delays...");
+          // If initial attempt fails, try once more
+          console.log("First session attempt failed, retrying...");
           
           try {
-            // Wait a bit longer before retry
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            
-            // Retry with more attempts and longer delay
-            const session = await waitForSession(80, 750);
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            const session = await waitForSession(15, 400);
             
             if (session?.user) {
               const userRole = session.user.role;
@@ -116,32 +117,8 @@ export default function PasswordLoginPage() {
               setEstablishingSession(false);
             }
           } catch (retryError) {
-            // Final attempt with even more patience
-            console.log("Second session attempt failed, final retry...");
-            
-            try {
-              await new Promise((resolve) => setTimeout(resolve, 2000));
-              const session = await waitForSession(100, 1000);
-              
-              if (session?.user) {
-                const userRole = session.user.role;
-                if (userRole === "ADMIN") {
-                  window.location.href = "/admin/jobs";
-                } else if (userRole === "DIRECTOR") {
-                  window.location.href = "/director/dashboard";
-                } else if (userRole === "TALENT") {
-                  window.location.href = "/talent/dashboard";
-                } else {
-                  window.location.href = "/";
-                }
-              } else {
-                setError("Unable to establish session after multiple attempts. Please refresh the page and try again.");
-                setEstablishingSession(false);
-              }
-            } catch (finalError) {
-              setError("Session establishment is taking too long. Please refresh the page and try logging in again.");
-              setEstablishingSession(false);
-            }
+            setError("Session establishment failed. Please refresh the page and try again.");
+            setEstablishingSession(false);
           }
         }
       }

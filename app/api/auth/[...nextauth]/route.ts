@@ -70,31 +70,12 @@ export const authOptions: NextAuthConfig = {
     error: "/auth/error",
   },
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       // Initial sign in - user object is available
       if (user) {
-        await connectDB();
-        const dbUser = await User.findById(user.id);
-        if (dbUser) {
-          token.id = dbUser._id.toString();
-          token.role = dbUser.role;
-          token.emailVerified = !!dbUser.emailVerified;
-        } else {
-          // Fallback to user data from authorize function
-          token.id = user.id;
-          token.role = (user as any).role;
-          token.emailVerified = (user as any).emailVerified || false;
-        }
-      }
-      
-      // Update token with fresh user data on each request
-      if (token.id) {
-        await connectDB();
-        const dbUser = await User.findById(token.id);
-        if (dbUser) {
-          token.role = dbUser.role;
-          token.emailVerified = !!dbUser.emailVerified;
-        }
+        token.id = user.id;
+        token.role = (user as any).role || (user as any).role;
+        token.emailVerified = (user as any).emailVerified || false;
       }
       
       return token;
