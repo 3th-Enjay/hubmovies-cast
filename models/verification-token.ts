@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const VerificationTokenSchema = new mongoose.Schema(
   {
-    identifier: { type: String, required: true, index: true },
-    token: { type: String, unique: true, required: true, index: true },
-    expires: { type: Date, required: true, index: true },
+    identifier: { type: String, required: true },
+    token: { type: String, unique: true, required: true },
+    expires: { type: Date, required: true },
   },
   { timestamps: true }
 );
