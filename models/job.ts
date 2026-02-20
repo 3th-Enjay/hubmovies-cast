@@ -19,6 +19,9 @@ const JobSchema = new mongoose.Schema(
     closedEarly: { type: Boolean, default: false }, // Closed early by admin
     adminActionReason: { type: String }, // Reason for admin action
     adminActionBy: { type: String }, // Admin ID who took action
+    approvedByAdmin: { type: Boolean, default: true, index: true }, // Requires admin approval before public listing
+    approvedAt: { type: Date }, // When admin approved the job
+    approvedBy: { type: String }, // Admin ID who approved the job
   },
   { timestamps: true }
 );

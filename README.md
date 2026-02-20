@@ -1835,4 +1835,82 @@ npm run dev
 
 ---
 
+## Recent Updates (February 2026)
+
+### What has been done
+
+1. Payment navigation reliability fixed for talent users
+- Replaced admin-only fetch dependency in payment navigation with a talent-safe endpoint.
+- Added lazy-loading button state while payment details are being fetched before redirect.
+- Files:
+  - `lib/use-payment-navigation.ts`
+  - `app/api/talent/payment-settings/route.ts`
+  - `app/auth/payment/page.tsx`
+  - `app/auth/payment-required/page.tsx`
+
+2. Route protection and role isolation tightened
+- Middleware now protects all `/talent/*` routes (not only dashboard).
+- Added matcher coverage for `/api/admin/*` and `/api/messages/*`.
+- Non-admin access to admin UI routes now redirects to role-appropriate dashboard.
+- Files:
+  - `middleware.ts`
+
+3. Share link behavior changed to open job modal with exact job details
+- Share links now use query deeplink format: `/jobs?jobId=<id>`.
+- `/jobs` page auto-fetches job data and opens `JobDetailModal` for the shared ID.
+- Closing modal removes `jobId` from URL.
+- Files:
+  - `app/jobs/page.tsx`
+  - `app/components/director/dashboard/page.tsx`
+  - `app/admin/jobs/page.tsx`
+
+4. Shared job authentication/apply flow improved
+- Unauthenticated users can view job details but are prompted to:
+  - `Sign In to Apply`
+  - `Sign Up as Talent`
+- Talent signup links now include `role=TALENT` and preserve redirect to the job context.
+- Apply flow fallback redirect now routes to login with return URL to shared job context.
+- Files:
+  - `app/components/job-detail-modal.tsx`
+  - `app/jobs/[id]/page.tsx`
+  - `app/components/modals/apply-flow-modal.tsx`
+
+5. Environment configuration cleanup
+- Removed duplicate NextAuth vars in local environment.
+- Kept local `NEXTAUTH_URL=http://localhost:3000`.
+- Documented that production must set `NEXTAUTH_URL=https://hubmovies-cd.com` in host environment variables.
+- Files:
+  - `.env.local`
+
+6. Production build errors fixed
+- Fixed Next.js build failure caused by `useSearchParams` in `/jobs` by wrapping page in `Suspense`.
+- Verified successful `next build`.
+- Files:
+  - `app/jobs/page.tsx`
+
+### What can be done next
+
+1. Migrate `middleware.ts` to `proxy.ts`
+- Next.js 16 marks middleware file convention as deprecated.
+
+2. Normalize README encoding and trim duplication
+- Current README contains mixed character encoding artifacts and repeated sections.
+- Suggested cleanup: concise architecture + API + changelog format.
+
+3. Improve shared-link UX and resilience
+- Add non-alert toast for copy success/failure.
+- Add explicit "invalid or closed job" modal state for bad `jobId`.
+- Add optional auto-open guard when jobs list is still loading.
+
+4. Add tests for critical flows
+- E2E: shared link -> modal opens -> unauth prompts -> signup as talent -> return and apply.
+- E2E: payment CTA from talent dashboard/profile/jobs.
+- Middleware role boundary tests (talent/director/admin routes and APIs).
+
+5. Harden payment settings fetch behavior
+- Show explicit error state if payment settings API fails.
+- Add retry/backoff policy and telemetry for payment fetch failures.
+
+---
+
 **Note:** This README is continuously updated. Always check the "Recent Changes & Updates" section for the latest modifications. When making changes, document them here following the established format.

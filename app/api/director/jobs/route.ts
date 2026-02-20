@@ -6,6 +6,7 @@ import User from "@/models/user";
 import { getDirectorId, requireVerifiedUser } from "@/lib/auth-helpers";
 import { incrementDirectorTrustScore } from "@/lib/profile-completion";
 import { getTrustLevel, getDirectorCapabilities } from "@/lib/director-trust";
+import { sendDirectorJobApprovalRequestEmail } from "@/lib/email";
 
 /**
  * GET /api/director/jobs
@@ -63,6 +64,7 @@ export async function GET() {
           budget: job.budget,
           deadline: job.deadline,
           status: job.status,
+          approvedByAdmin: !!job.approvedByAdmin,
           applicationCount,
         };
       })
@@ -178,7 +180,40 @@ export async function POST(req: Request) {
       deadline: deadline || "",
       description: description || "",
       status: "open",
+      approvedByAdmin: false,
     });
+
+    const appBaseUrl =
+      process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.NEXTAUTH_URL ||
+      "http://localhost:3000";
+    const reviewUrl = `${appBaseUrl}/admin/jobs?approveJobId=${job._id.toString()}`;
+    const envAdminEmails = (process.env.ADMIN_ACCOUNTS || "")
+      .split(",")
+      .map((email) => email.trim())
+      .filter(Boolean);
+    const dbAdmins = await User.find({ role: "ADMIN" }).select("email");
+    const adminEmails = Array.from(
+      new Set(
+        [...envAdminEmails, ...dbAdmins.map((adminUser) => adminUser.email).filter(Boolean)] as string[]
+      )
+    );
+
+    if (adminEmails.length > 0) {
+      Promise.allSettled(
+        adminEmails.map((adminEmail) =>
+          sendDirectorJobApprovalRequestEmail(adminEmail, {
+            jobId: job._id.toString(),
+            title: job.title,
+            directorName: director.name || undefined,
+            directorEmail: director.email || undefined,
+            approveUrl: reviewUrl,
+          })
+        )
+      ).catch((error) => {
+        console.error("Failed to send admin job approval emails:", error);
+      });
+    }
 
     // Update director trust score incrementally (job posted: +10)
     try {
@@ -199,6 +234,7 @@ export async function POST(req: Request) {
           budget: job.budget,
           deadline: job.deadline,
           status: job.status,
+          approvedByAdmin: !!job.approvedByAdmin,
           applicationCount: 0,
         },
       },

@@ -14,9 +14,12 @@ type Job = {
   location: string;
   budget: string;
   deadline: string;
+  description?: string;
   status: string;
   hidden: boolean;
   closedEarly: boolean;
+  approvedByAdmin: boolean;
+  approvedAt?: string;
   adminActionReason?: string;
   applicationCount: number;
   createdAt: string;
@@ -33,6 +36,38 @@ export default function AdminJobsPage() {
   });
   const [showCreate, setShowCreate] = useState(false);
 
+  useEffect(() => {
+    async function autoApproveFromQuery() {
+      if (typeof window === "undefined") return;
+      const searchParams = new URLSearchParams(window.location.search);
+      const approveJobId = searchParams.get("approveJobId");
+      if (!approveJobId) return;
+
+      try {
+        const res = await fetch(`/api/admin/jobs/${approveJobId}/approve`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reason: "Approved from email link" }),
+        });
+        if (res.ok) {
+          alert("Job approved and now visible on public jobs.");
+        } else {
+          const d = await res.json().catch(() => ({}));
+          alert(d.error || "Failed to approve job");
+        }
+      } catch (err) {
+        console.error("Failed to auto-approve job:", err);
+      } finally {
+        searchParams.delete("approveJobId");
+        const nextQuery = searchParams.toString();
+        window.history.replaceState({}, "", `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`);
+        window.location.reload();
+      }
+    }
+
+    autoApproveFromQuery();
+  }, []);
+
   const handleShare = async (jobId: string) => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const shareUrl = `${origin}/jobs?jobId=${encodeURIComponent(jobId)}`;
@@ -44,32 +79,120 @@ export default function AdminJobsPage() {
     }
   };
 
-  useEffect(() => {
-    async function fetchJobs() {
-      setLoading(true);
-      setError(null);
-      try {
-        const queryParams = new URLSearchParams();
-        if (filters.status) queryParams.append("status", filters.status);
-        if (filters.hidden !== "") queryParams.append("hidden", filters.hidden);
-
-        const res = await fetch(`/api/admin/jobs?${queryParams.toString()}`);
-        if (res.ok) {
-          const data = await res.json();
-          setJobs(data.jobs || []);
-        } else {
-          const errorData = await res.json();
-          setError(errorData.error || "Failed to fetch jobs");
-        }
-      } catch (err) {
-        console.error("Failed to fetch jobs:", err);
-        setError("Network error. Please try again.");
-      } finally {
-        setLoading(false);
+  const handleApprove = async (jobId: string) => {
+    const reason = prompt("Reason for approving this job (optional):") || "Admin approved job";
+    try {
+      const res = await fetch(`/api/admin/jobs/${jobId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      });
+      if (res.ok) {
+        alert("Job approved and now visible on public jobs.");
+        fetchJobsDirect();
+      } else {
+        const d = await res.json();
+        alert(d.error || "Failed to approve job");
       }
+    } catch (error) {
+      console.error(error);
+      alert("Network error. Please try again.");
     }
+  };
 
-    fetchJobs();
+  const handleEdit = async (job: Job) => {
+    const title = prompt("Title", job.title);
+    if (title === null) return;
+    const type = prompt("Type", job.type);
+    if (type === null) return;
+    const location = prompt("Location", job.location);
+    if (location === null) return;
+    const budget = prompt("Budget", job.budget || "");
+    if (budget === null) return;
+    const deadline = prompt("Deadline", job.deadline || "");
+    if (deadline === null) return;
+    const description = prompt("Description", job.description || "");
+    if (description === null) return;
+    const status = prompt("Status (open/closed)", job.status);
+    if (status === null) return;
+
+    try {
+      const res = await fetch(`/api/admin/jobs/${job._id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          type,
+          location,
+          budget,
+          deadline,
+          description,
+          status: status.toLowerCase(),
+          reason: "Admin edited job",
+        }),
+      });
+      if (res.ok) {
+        alert("Job updated.");
+        fetchJobsDirect();
+      } else {
+        const d = await res.json();
+        alert(d.error || "Failed to edit job");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Network error. Please try again.");
+    }
+  };
+
+  const handleDelete = async (job: Job) => {
+    if (!confirm(`Delete job "${job.title}"? This removes related applications and messages.`)) {
+      return;
+    }
+    const reason = prompt("Reason for deleting this job (required):");
+    if (!reason || !reason.trim()) return;
+    try {
+      const res = await fetch(`/api/admin/jobs/${job._id}?reason=${encodeURIComponent(reason.trim())}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        alert("Job deleted.");
+        fetchJobsDirect();
+      } else {
+        const d = await res.json();
+        alert(d.error || "Failed to delete job");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Network error. Please try again.");
+    }
+  };
+
+  async function fetchJobsDirect() {
+    setLoading(true);
+    setError(null);
+    try {
+      const queryParams = new URLSearchParams();
+      if (filters.status) queryParams.append("status", filters.status);
+      if (filters.hidden !== "") queryParams.append("hidden", filters.hidden);
+
+      const res = await fetch(`/api/admin/jobs?${queryParams.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setJobs(data.jobs || []);
+      } else {
+        const errorData = await res.json();
+        setError(errorData.error || "Failed to fetch jobs");
+      }
+    } catch (err) {
+      console.error("Failed to fetch jobs:", err);
+      setError("Network error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchJobsDirect();
   }, [filters]);
 
   const handleJobAction = async (jobId: string, action: "CLOSE_EARLY" | "HIDE" | "UNHIDE") => {
@@ -202,6 +325,11 @@ export default function AdminJobsPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-xl font-semibold text-white">{job.title}</h3>
+                      {!job.approvedByAdmin && (
+                        <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 text-xs rounded border border-yellow-500/30">
+                          PENDING APPROVAL
+                        </span>
+                      )}
                       {job.hidden && (
                         <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded border border-red-500/30">
                           HIDDEN
@@ -245,11 +373,31 @@ export default function AdminJobsPage() {
                   >
                     Share Job
                   </button>
+                  {!job.approvedByAdmin && (
+                    <button
+                      onClick={() => handleApprove(job._id)}
+                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                    >
+                      Confirm / Approve
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleEdit(job)}
+                    className="px-4 py-2 border border-blue-500 text-blue-300 rounded hover:bg-blue-500/10 transition"
+                  >
+                    Edit Job
+                  </button>
                   <button
                     onClick={() => router.push(`/admin/jobs/${job._id}/applications`)}
                     className="px-4 py-2 border border-white/20 text-white rounded hover:bg-white/10 transition"
                   >
                     View Applications
+                  </button>
+                  <button
+                    onClick={() => handleDelete(job)}
+                    className="px-4 py-2 border border-red-500 text-red-400 rounded hover:bg-red-500/10 transition"
+                  >
+                    Delete Job
                   </button>
                   {job.status === "open" && (
                     <button

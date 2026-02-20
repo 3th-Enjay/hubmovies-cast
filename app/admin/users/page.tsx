@@ -172,6 +172,27 @@ export default function AdminUsersPage() {
     setConfirmModalOpen(true);
   }
 
+  async function deleteUser(id: string, label: string) {
+    if (!confirm(`Delete user "${label}"? This action is irreversible.`)) return;
+    const reason = prompt("Reason for deleting this user (required):");
+    if (!reason || !reason.trim()) return;
+    try {
+      const res = await fetch(`/api/admin/users/${id}?reason=${encodeURIComponent(reason.trim())}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        alert("User deleted.");
+        fetchData();
+      } else {
+        const d = await res.json();
+        alert(d.error || "Failed to delete user");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error. Please try again.");
+    }
+  }
+
   async function submitConfirmPayment() {
     if (!confirmUser) return;
     setConfirming(true);
@@ -270,6 +291,7 @@ export default function AdminUsersPage() {
                         {!u.paymentConfirmed && (
                           <button onClick={() => openConfirmModal(u)} className="col-span-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Confirm Payment</button>
                         )}
+                        <button onClick={() => deleteUser(u._id, u.name || u.email)} className="col-span-2 px-3 py-2 border border-red-500 text-red-400 rounded hover:bg-red-500/10">Delete User</button>
                       </div>
                     </div>
                   ))
@@ -335,6 +357,7 @@ export default function AdminUsersPage() {
                       {!profileData.paymentConfirmed && (
                         <button onClick={() => { openConfirmModal(profileData); closeProfileModal(); }} className="px-3 py-1 bg-blue-600 text-white rounded">Confirm Payment</button>
                       )}
+                      <button onClick={() => { deleteUser(profileData._id, profileData.name || profileData.email); closeProfileModal(); }} className="px-3 py-1 border border-red-500 text-red-400 rounded">Delete User</button>
 
                       <button onClick={closeProfileModal} className="px-3 py-1 border border-white/20 rounded text-(--text-secondary)">Close</button>
                     </div>

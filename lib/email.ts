@@ -294,3 +294,56 @@ export async function sendOtpEmail(userEmail: string, otp: string, expiresMinute
 
   return sendEmail({ to: userEmail, subject, html });
 }
+
+/**
+ * Send admin notification when a director posts a new job requiring approval.
+ */
+export async function sendDirectorJobApprovalRequestEmail(
+  adminEmail: string,
+  payload: {
+    jobId: string;
+    title: string;
+    directorName?: string;
+    directorEmail?: string;
+    approveUrl: string;
+  }
+): Promise<boolean> {
+  const subject = `Job Approval Required - ${payload.title}`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #0b0b0c; color: #f4f4f5; padding: 20px; text-align: center; }
+          .content { background: #fff; padding: 30px; border: 1px solid #e0e0e0; }
+          .button { display: inline-block; padding: 12px 24px; background: #c7a24b; color: #000; text-decoration: none; border-radius: 4px; margin-top: 20px; font-weight: 700; }
+          .meta { background: #f5f5f5; border-radius: 6px; padding: 12px; margin: 16px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>HubMovies Admin Alert</h1>
+          </div>
+          <div class="content">
+            <h2>New Director Job Pending Approval</h2>
+            <div class="meta">
+              <p><strong>Job:</strong> ${payload.title}</p>
+              <p><strong>Director:</strong> ${payload.directorName || "Unknown"}</p>
+              <p><strong>Director Email:</strong> ${payload.directorEmail || "Unknown"}</p>
+              <p><strong>Job ID:</strong> ${payload.jobId}</p>
+            </div>
+            <p>Click the button below to open admin review and confirm this job.</p>
+            <a href="${payload.approveUrl}" class="button">Review & Confirm Job</a>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({ to: adminEmail, subject, html });
+}

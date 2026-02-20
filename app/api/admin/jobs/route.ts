@@ -51,6 +51,8 @@ export async function GET(req: Request) {
           hidden: job.hidden,
           closedEarly: job.closedEarly,
           adminActionReason: job.adminActionReason,
+          approvedByAdmin: !!job.approvedByAdmin,
+          approvedAt: job.approvedAt,
           applicationCount,
           createdAt: job.createdAt,
         };
@@ -110,6 +112,9 @@ export async function POST(req: Request) {
       description: description || "",
       status: "open",
       adminActionBy: admin._id.toString(),
+      approvedByAdmin: true,
+      approvedAt: new Date(),
+      approvedBy: admin._id.toString(),
     });
 
     return NextResponse.json({ job: { id: job._id.toString(), title: job.title, type: job.type, location: job.location, budget: job.budget, deadline: job.deadline, status: job.status, applicationCount: 0 } }, { status: 201 });

@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 import cloudinary from "@/lib/cloudinary";
 import Application from "@/models/application";
 import User from "@/models/user";
+import Job from "@/models/job";
 import { requireVerifiedUser } from "@/lib/auth-helpers";
 import { MIN_PROFILE_COMPLETION } from "@/lib/constants";
 
@@ -144,6 +145,14 @@ export async function POST(req: Request) {
 
   // Check if talent already applied to this job
   // Prevents duplicate applications from the same user
+  const targetJob = await Job.findById(jobId).select("status hidden approvedByAdmin");
+  if (!targetJob || targetJob.hidden || targetJob.approvedByAdmin === false || targetJob.status !== "open") {
+    return NextResponse.json(
+      { error: "This job is not available for applications." },
+      { status: 404 }
+    );
+  }
+
   const existing = await Application.findOne({ jobId, talentId });
   if (existing) {
     return NextResponse.json(

@@ -18,7 +18,7 @@ export async function GET(
   try {
     const job = await Job.findById(id);
 
-    if (!job || job.hidden) {
+    if (!job || job.hidden || job.approvedByAdmin === false) {
       return NextResponse.json({ error: "Job not found" }, { status: 404 });
     }
 
