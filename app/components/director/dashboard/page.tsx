@@ -376,7 +376,7 @@ export default function CastingDashboard() {
 
   const handleShareJob = async (job: Job) => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const shareUrl = `${origin}/jobs/${job.id}`;
+    const shareUrl = `${origin}/jobs?jobId=${encodeURIComponent(job.id)}`;
 
     try {
       await navigator.clipboard.writeText(shareUrl);

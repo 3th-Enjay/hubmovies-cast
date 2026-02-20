@@ -27,7 +27,7 @@ export default function JobDetailModal({
   job: Job;
   onClose: () => void;
 }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [applyOpen, setApplyOpen] = useState(false);
   const [hasApplied, setHasApplied] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState(true);
@@ -42,6 +42,9 @@ export default function JobDetailModal({
   const needsPayment = isTalent && !user?.paymentConfirmed;
   const profileCompletion = isTalent ? (user?.profileCompletion ?? 0) : 0;
   const needsProfile = isTalent && profileCompletion < 70;
+  const encodedRedirect = encodeURIComponent(`/jobs?jobId=${jobId}`);
+  const loginRedirect = `/auth/password?redirect=${encodedRedirect}`;
+  const signupRedirect = `/signup?role=TALENT&redirect=${encodedRedirect}`;
 
   // Check if user has already applied to this job
   useEffect(() => {
@@ -153,7 +156,28 @@ export default function JobDetailModal({
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4">
-              {needsProfile ? (
+              {status === "unauthenticated" ? (
+                <>
+                  <Link
+                    href={loginRedirect}
+                    className="px-6 py-3 bg-[var(--accent-gold)] text-black font-medium hover:opacity-90 transition text-center"
+                  >
+                    Sign In to Apply
+                  </Link>
+                  <Link
+                    href={signupRedirect}
+                    className="px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition text-center"
+                  >
+                    Sign Up as Talent
+                  </Link>
+                  <button
+                    onClick={onClose}
+                    className="px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition"
+                  >
+                    Close
+                  </button>
+                </>
+              ) : needsProfile ? (
                 <>
                   <Link
                     href="/talent/profile"

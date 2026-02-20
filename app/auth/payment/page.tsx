@@ -47,10 +47,12 @@ export default function PaymentPage() {
 
   const fetchPaymentSettings = async () => {
     try {
-      const res = await fetch("/api/admin/payment");
+      const res = await fetch("/api/talent/payment-settings", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setSettings(data.settings || {});
+      } else {
+        setSettings(null);
       }
     } catch (err) {
       console.error("Failed to fetch payment settings:", err);

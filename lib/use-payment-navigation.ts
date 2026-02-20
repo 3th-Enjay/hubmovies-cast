@@ -21,22 +21,16 @@ export function usePaymentNavigation(options: UsePaymentNavigationOptions = {}) 
   const goToPayment = async () => {
     if (loading) return;
     setLoading(true);
-
-    let delayMs = 800;
-
-    while (aliveRef.current) {
-      try {
-        const res = await fetch("/api/admin/payment", { cache: "no-store" });
-        if (res.ok) {
-          router.push(options.redirectTo || "/auth/payment");
-          return;
-        }
-      } catch {
-        // Keep retrying until the settings endpoint responds.
+    try {
+      const res = await fetch("/api/talent/payment-settings", { cache: "no-store" });
+      if (!res.ok) {
+        return;
       }
-
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
-      delayMs = Math.min(3000, delayMs + 400);
+      router.push(options.redirectTo || "/auth/payment");
+    } finally {
+      if (aliveRef.current) {
+        setLoading(false);
+      }
     }
   };
 

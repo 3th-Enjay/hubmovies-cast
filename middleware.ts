@@ -5,6 +5,7 @@ import { getToken } from "next-auth/jwt";
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const isApiRoute = path.startsWith("/api/");
 
   // Public routes - allow all (including verify-email page)
   if (
@@ -31,6 +32,15 @@ export async function middleware(req: NextRequest) {
 
     const userRole = (token as any).role;
     if (userRole !== "ADMIN") {
+      if (!isApiRoute) {
+        if (userRole === "DIRECTOR") {
+          return NextResponse.redirect(new URL("/director/dashboard", req.url));
+        }
+        if (userRole === "TALENT") {
+          return NextResponse.redirect(new URL("/talent/dashboard", req.url));
+        }
+        return NextResponse.redirect(new URL("/", req.url));
+      }
       return NextResponse.json(
         { error: "Forbidden. Admin access required." },
         { status: 403 }
@@ -43,7 +53,7 @@ export async function middleware(req: NextRequest) {
   // Protected routes require authentication
   if (
     path.startsWith("/director") ||
-    path.startsWith("/talent/dashboard") ||
+    path.startsWith("/talent") ||
     path.startsWith("/api/director") ||
     path.startsWith("/api/talent") ||
     path.startsWith("/api/apply") ||
@@ -66,7 +76,7 @@ export async function middleware(req: NextRequest) {
 
     // Role-based redirection
     const userRole = (token as any).role;
-    if (userRole === "DIRECTOR" && path.startsWith("/talent/dashboard")) {
+    if (userRole === "DIRECTOR" && path.startsWith("/talent")) {
       return NextResponse.redirect(new URL("/director/dashboard", req.url));
     }
 
@@ -82,10 +92,12 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/director/:path*",
-    "/talent/dashboard/:path*",
+    "/talent/:path*",
+    "/api/admin/:path*",
     "/api/director/:path*",
     "/api/talent/:path*",
     "/api/apply/:path*",
+    "/api/messages/:path*",
   ],
 };
 

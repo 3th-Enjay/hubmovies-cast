@@ -112,7 +112,10 @@ export default function SharedJobPage({ params }: { params: { id: string } }) {
   const isClosed = job?.status === "closed";
 
   const authRedirect = useMemo(() => `/auth?redirect=/jobs/${jobId}`, [jobId]);
-  const signupRedirect = useMemo(() => `/signup?redirect=/jobs/${jobId}`, [jobId]);
+  const signupRedirect = useMemo(
+    () => `/signup?role=TALENT&redirect=/jobs/${jobId}`,
+    [jobId]
+  );
   const loginRedirect = useMemo(
     () => `/auth/password?redirect=/jobs/${jobId}`,
     [jobId]
@@ -249,7 +252,7 @@ export default function SharedJobPage({ params }: { params: { id: string } }) {
                 href={signupRedirect}
                 className="px-6 py-3 border border-white/20 text-white rounded hover:bg-white/10 transition text-center"
               >
-                Create Account
+                Sign Up as Talent
               </Link>
               <Link
                 href={authRedirect}

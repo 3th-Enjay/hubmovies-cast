@@ -402,7 +402,8 @@ export default function ApplyFlowModal({
 
       // If unauthenticated, redirect to auth page instead of calling protected APIs
       if (!session) {
-        router.push("/auth");
+        const encodedRedirect = encodeURIComponent(`/jobs?jobId=${jobId}`);
+        router.push(`/auth/password?redirect=${encodedRedirect}`);
         return;
       }
 

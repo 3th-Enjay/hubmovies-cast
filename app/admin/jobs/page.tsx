@@ -35,7 +35,7 @@ export default function AdminJobsPage() {
 
   const handleShare = async (jobId: string) => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const shareUrl = `${origin}/jobs/${jobId}`;
+    const shareUrl = `${origin}/jobs?jobId=${encodeURIComponent(jobId)}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       alert("Share link copied to clipboard.");

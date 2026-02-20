@@ -21,7 +21,7 @@ export default function PaymentRequiredPage() {
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        const res = await fetch("/api/admin/payment");
+        const res = await fetch("/api/talent/payment-settings", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           const s = data.settings;

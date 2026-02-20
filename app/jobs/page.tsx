@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import JobDetailModal from "@/app/components/job-detail-modal";
 import { useSession } from "next-auth/react";
 import TalentSidebar from "@/app/components/talent-sidebar";
@@ -28,8 +29,9 @@ type Filter = {
   status: "all" | "open" | "closed";
 };
 
-export default function JobsListingPage() {
+function JobsListingContent() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const user = session?.user as any;
   const isTalent = user?.role === "TALENT";
   const paymentConfirmed = !!user?.paymentConfirmed;
@@ -48,6 +50,7 @@ export default function JobsListingPage() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const jobsPerPage = 10;
+  const sharedJobId = searchParams.get("jobId");
 
   // Fetch jobs
   useEffect(() => {
@@ -131,6 +134,25 @@ export default function JobsListingPage() {
       checkAppliedStatus();
     }
   }, [jobs]);
+
+  useEffect(() => {
+    async function openSharedJob(jobId: string) {
+      try {
+        const res = await fetch(`/api/jobs/${jobId}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.job) {
+          setSelectedJob(data.job);
+        }
+      } catch (error) {
+        console.error("Failed to open shared job:", error);
+      }
+    }
+
+    if (!sharedJobId) return;
+    if (selectedJob?._id === sharedJobId) return;
+    openSharedJob(sharedJobId);
+  }, [sharedJobId, selectedJob?._id]);
 
   // Apply filters
   useEffect(() => {
@@ -459,7 +481,7 @@ export default function JobsListingPage() {
                       onClick={(e) => {
                         e.stopPropagation();
                         const origin = typeof window !== "undefined" ? window.location.origin : "";
-                        const shareUrl = `${origin}/jobs/${job._id}`;
+                        const shareUrl = `${origin}/jobs?jobId=${encodeURIComponent(job._id)}`;
                         navigator.clipboard.writeText(shareUrl).then(
                           () => alert("Share link copied to clipboard."),
                           () => alert(`Share link: ${shareUrl}`)
@@ -534,6 +556,14 @@ export default function JobsListingPage() {
             // Capture job ID before setting to null
             const jobId = selectedJob?._id;
             setSelectedJob(null);
+            if (typeof window !== "undefined") {
+              const url = new URL(window.location.href);
+              if (url.searchParams.has("jobId")) {
+                url.searchParams.delete("jobId");
+                const query = url.searchParams.toString();
+                window.history.replaceState({}, "", `${url.pathname}${query ? `?${query}` : ""}${url.hash}`);
+              }
+            }
             // Refresh applied status
             if (jobId) {
               async function refreshStatus() {
@@ -553,5 +583,19 @@ export default function JobsListingPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function JobsListingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center">
+          <p className="text-[var(--text-secondary)]">Loading jobs...</p>
+        </div>
+      }
+    >
+      <JobsListingContent />
+    </Suspense>
   );
 }
