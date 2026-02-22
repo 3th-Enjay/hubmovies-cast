@@ -459,8 +459,8 @@ export default function AdminJobsPage() {
         )}
       </div>
       {editingJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-2xl bg-[var(--bg-main)] border border-white/10 rounded-lg p-6">
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/70 p-3 sm:p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl bg-[var(--bg-main)] border border-white/10 rounded-lg p-4 sm:p-6 max-h-[92vh] flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl text-white">Edit Job</h2>
               <button
@@ -472,7 +472,7 @@ export default function AdminJobsPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 flex-1 min-h-0 overflow-y-auto pr-1">
               <div className="sm:col-span-2">
                 <label className="block text-sm text-[var(--text-secondary)] mb-1">Title</label>
                 <input
@@ -543,7 +543,7 @@ export default function AdminJobsPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-end gap-3">
+            <div className="mt-4 sm:mt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3">
               <button
                 onClick={closeEditModal}
                 className="px-4 py-2 border border-white/20 text-white rounded hover:bg-white/10"

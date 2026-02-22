@@ -98,7 +98,7 @@ export default function EditJobModal({ job, onClose, onSave }: EditJobModalProps
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 40 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="space-y-6"
+        className="space-y-5 sm:space-y-6"
       >
         {/* Header */}
         <div>
@@ -132,7 +132,7 @@ export default function EditJobModal({ job, onClose, onSave }: EditJobModalProps
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-[var(--text-secondary)] mb-2 font-body">
                 Role Type *
@@ -163,7 +163,7 @@ export default function EditJobModal({ job, onClose, onSave }: EditJobModalProps
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-[var(--text-secondary)] mb-2 font-body">
                 Budget
@@ -212,13 +212,13 @@ export default function EditJobModal({ job, onClose, onSave }: EditJobModalProps
             <label className="block text-sm text-[var(--text-secondary)] mb-2 font-body">
               Status
             </label>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {(["open", "closed"] as const).map((status) => (
                 <button
                   key={status}
                   type="button"
                   onClick={() => setFormData({ ...formData, status })}
-                  className={`px-4 py-2 text-sm rounded border transition font-body ${
+                  className={`px-4 py-2 text-sm rounded border transition font-body min-w-[96px] ${
                     formData.status === status
                       ? "bg-[var(--accent-gold)]/20 text-[var(--accent-gold)] border-[var(--accent-gold)]/30"
                       : "bg-white/5 text-[var(--text-secondary)] border-white/10 hover:border-white/20"
@@ -230,7 +230,7 @@ export default function EditJobModal({ job, onClose, onSave }: EditJobModalProps
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}

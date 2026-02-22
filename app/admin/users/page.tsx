@@ -27,12 +27,6 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState("");
   const [pagination, setPagination] = useState<PaginationInfo>({ page: 1, limit: 20, total: 0, pages: 0 });
   const [error, setError] = useState<string | null>(null);
-  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [confirmUser, setConfirmUser] = useState<AdminUser | null>(null);
-  const [confirmMethod, setConfirmMethod] = useState<"ETH" | "BTC" | "APPLE_PAY" | "GIFT_CARD">("ETH");
-  const [confirmReference, setConfirmReference] = useState("");
-  const [confirmReason, setConfirmReason] = useState("");
-  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -164,14 +158,6 @@ export default function AdminUsersPage() {
     setProfileData(null);
   }
 
-  function openConfirmModal(user: AdminUser) {
-    setConfirmUser(user);
-    setConfirmMethod("ETH");
-    setConfirmReference("");
-    setConfirmReason("");
-    setConfirmModalOpen(true);
-  }
-
   async function deleteUser(id: string, label: string) {
     if (!confirm(`Delete user "${label}"? This action is irreversible.`)) return;
     const reason = prompt("Reason for deleting this user (required):");
@@ -190,36 +176,6 @@ export default function AdminUsersPage() {
     } catch (err) {
       console.error(err);
       alert("Network error. Please try again.");
-    }
-  }
-
-  async function submitConfirmPayment() {
-    if (!confirmUser) return;
-    setConfirming(true);
-    try {
-      const res = await fetch(`/api/admin/users/${confirmUser._id}/confirm-payment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          method: confirmMethod,
-          reference: confirmReference || undefined,
-          reason: confirmReason || undefined,
-        }),
-      });
-      if (res.ok) {
-        alert("Payment confirmed and user unlocked.");
-        setConfirmModalOpen(false);
-        setConfirmUser(null);
-        fetchData();
-      } else {
-        const d = await res.json();
-        alert(d.error || "Failed to confirm payment");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Network error. Please try again.");
-    } finally {
-      setConfirming(false);
     }
   }
 
@@ -288,9 +244,6 @@ export default function AdminUsersPage() {
                           <button onClick={() => unfreezeUser(u._id)} className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700">Unfreeze</button>
                         )}
 
-                        {!u.paymentConfirmed && (
-                          <button onClick={() => openConfirmModal(u)} className="col-span-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Confirm Payment</button>
-                        )}
                         <button onClick={() => deleteUser(u._id, u.name || u.email)} className="col-span-2 px-3 py-2 border border-red-500 text-red-400 rounded hover:bg-red-500/10">Delete User</button>
                       </div>
                     </div>
@@ -354,9 +307,6 @@ export default function AdminUsersPage() {
                         <button onClick={() => { if (confirm('Unfreeze this user?')) { unfreezeUser(profileData._id); closeProfileModal(); } }} className="px-3 py-1 bg-green-600 text-white rounded">Unfreeze</button>
                       )}
 
-                      {!profileData.paymentConfirmed && (
-                        <button onClick={() => { openConfirmModal(profileData); closeProfileModal(); }} className="px-3 py-1 bg-blue-600 text-white rounded">Confirm Payment</button>
-                      )}
                       <button onClick={() => { deleteUser(profileData._id, profileData.name || profileData.email); closeProfileModal(); }} className="px-3 py-1 border border-red-500 text-red-400 rounded">Delete User</button>
 
                       <button onClick={closeProfileModal} className="px-3 py-1 border border-white/20 rounded text-(--text-secondary)">Close</button>
@@ -369,90 +319,6 @@ export default function AdminUsersPage() {
 
         </div>
       </div>
-
-      {/* Confirm Payment Modal */}
-      {confirmModalOpen && confirmUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-lg bg-(--bg-main) border border-white/10 rounded-lg p-6">
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <div>
-                <h3 className="text-lg text-white">Confirm Payment</h3>
-                <p className="text-sm text-(--text-secondary)">
-                  {confirmUser.name || confirmUser.email}
-                </p>
-              </div>
-              <button
-                onClick={() => setConfirmModalOpen(false)}
-                className="text-(--text-secondary) hover:text-white"
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm text-(--text-secondary) mb-2">
-                  Payment Method
-                </label>
-                <div className="flex gap-2">
-                  {(["ETH", "BTC", "APPLE_PAY", "GIFT_CARD"] as const).map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setConfirmMethod(m)}
-                      className={`px-4 py-2 rounded border text-sm transition ${
-                        confirmMethod === m
-                          ? "bg-(--accent-gold)/10 border-(--accent-gold) text-(--accent-gold)"
-                          : "bg-white/5 border-white/10 text-white hover:border-white/20"
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm text-(--text-secondary) mb-2">
-                  Transaction Reference (optional)
-                </label>
-                <input
-                  value={confirmReference}
-                  onChange={(e) => setConfirmReference(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
-                  placeholder="Tx hash or reference"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-(--text-secondary) mb-2">
-                  Audit Note (optional)
-                </label>
-                <textarea
-                  value={confirmReason}
-                  onChange={(e) => setConfirmReason(e.target.value)}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
-                  rows={3}
-                  placeholder="Optional note for audit log"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <button
-                onClick={() => setConfirmModalOpen(false)}
-                className="px-4 py-2 border border-white/20 text-white rounded hover:bg-white/10"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={submitConfirmPayment}
-                disabled={confirming}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
-              >
-                {confirming ? "Confirming..." : "Confirm Payment"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
