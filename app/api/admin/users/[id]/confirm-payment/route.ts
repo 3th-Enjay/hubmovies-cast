@@ -12,9 +12,9 @@ export async function POST(
     const admin = await requireAdmin();
     const { id } = await params;
     const body = await req.json();
-    const { method, reference, reason } = body; // method: "ETH" | "BTC"
+    const { method, reference, reason } = body; // method: "ETH" | "BTC" | "APPLE_PAY" | "GIFT_CARD"
 
-    if (!method || (method !== "ETH" && method !== "BTC")) {
+    if (!method || !["ETH", "BTC", "APPLE_PAY", "GIFT_CARD"].includes(method)) {
       return NextResponse.json({ error: "Invalid payment method" }, { status: 400 });
     }
 

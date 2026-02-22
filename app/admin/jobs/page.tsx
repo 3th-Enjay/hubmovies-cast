@@ -35,6 +35,18 @@ export default function AdminJobsPage() {
     hidden: "",
   });
   const [showCreate, setShowCreate] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    type: "",
+    location: "",
+    budget: "",
+    deadline: "",
+    description: "",
+    status: "open",
+    reason: "Admin edited job",
+  });
 
   useEffect(() => {
     async function autoApproveFromQuery() {
@@ -100,39 +112,55 @@ export default function AdminJobsPage() {
     }
   };
 
-  const handleEdit = async (job: Job) => {
-    const title = prompt("Title", job.title);
-    if (title === null) return;
-    const type = prompt("Type", job.type);
-    if (type === null) return;
-    const location = prompt("Location", job.location);
-    if (location === null) return;
-    const budget = prompt("Budget", job.budget || "");
-    if (budget === null) return;
-    const deadline = prompt("Deadline", job.deadline || "");
-    if (deadline === null) return;
-    const description = prompt("Description", job.description || "");
-    if (description === null) return;
-    const status = prompt("Status (open/closed)", job.status);
-    if (status === null) return;
+  const openEditModal = (job: Job) => {
+    setEditingJob(job);
+    setEditForm({
+      title: job.title || "",
+      type: job.type || "",
+      location: job.location || "",
+      budget: job.budget || "",
+      deadline: job.deadline || "",
+      description: job.description || "",
+      status: job.status === "closed" ? "closed" : "open",
+      reason: "Admin edited job",
+    });
+  };
 
+  const closeEditModal = () => {
+    if (editSaving) return;
+    setEditingJob(null);
+  };
+
+  const submitEdit = async () => {
+    if (!editingJob) return;
+    if (!editForm.title.trim() || !editForm.type.trim() || !editForm.location.trim()) {
+      alert("Title, type, and location are required.");
+      return;
+    }
+    if (!["open", "closed"].includes(editForm.status)) {
+      alert("Status must be open or closed.");
+      return;
+    }
+
+    setEditSaving(true);
     try {
-      const res = await fetch(`/api/admin/jobs/${job._id}`, {
+      const res = await fetch(`/api/admin/jobs/${editingJob._id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title,
-          type,
-          location,
-          budget,
-          deadline,
-          description,
-          status: status.toLowerCase(),
-          reason: "Admin edited job",
+          title: editForm.title.trim(),
+          type: editForm.type.trim(),
+          location: editForm.location.trim(),
+          budget: editForm.budget.trim(),
+          deadline: editForm.deadline.trim(),
+          description: editForm.description.trim(),
+          status: editForm.status,
+          reason: editForm.reason.trim() || "Admin edited job",
         }),
       });
       if (res.ok) {
         alert("Job updated.");
+        setEditingJob(null);
         fetchJobsDirect();
       } else {
         const d = await res.json();
@@ -141,6 +169,8 @@ export default function AdminJobsPage() {
     } catch (error) {
       console.error(error);
       alert("Network error. Please try again.");
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -382,7 +412,7 @@ export default function AdminJobsPage() {
                     </button>
                   )}
                   <button
-                    onClick={() => handleEdit(job)}
+                    onClick={() => openEditModal(job)}
                     className="px-4 py-2 border border-blue-500 text-blue-300 rounded hover:bg-blue-500/10 transition"
                   >
                     Edit Job
@@ -428,6 +458,110 @@ export default function AdminJobsPage() {
           </div>
         )}
       </div>
+      {editingJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="w-full max-w-2xl bg-[var(--bg-main)] border border-white/10 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl text-white">Edit Job</h2>
+              <button
+                onClick={closeEditModal}
+                className="px-3 py-1 border border-white/20 text-white rounded hover:bg-white/10"
+                disabled={editSaving}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">Title</label>
+                <input
+                  value={editForm.title}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, title: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">Type</label>
+                <input
+                  value={editForm.type}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, type: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">Location</label>
+                <input
+                  value={editForm.location}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, location: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">Budget</label>
+                <input
+                  value={editForm.budget}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, budget: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">Deadline</label>
+                <input
+                  value={editForm.deadline}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, deadline: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">Status</label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, status: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
+                >
+                  <option value="open">Open</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">Description</label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, description: e.target.value }))}
+                  rows={4}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">Audit Reason</label>
+                <input
+                  value={editForm.reason}
+                  onChange={(e) => setEditForm((prev) => ({ ...prev, reason: e.target.value }))}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={closeEditModal}
+                className="px-4 py-2 border border-white/20 text-white rounded hover:bg-white/10"
+                disabled={editSaving}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitEdit}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                disabled={editSaving}
+              >
+                {editSaving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

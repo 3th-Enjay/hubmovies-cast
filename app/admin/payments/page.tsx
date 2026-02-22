@@ -22,6 +22,8 @@ type PaginationInfo = {
 export default function AdminPaymentsPage() {
   const [ethAddress, setEthAddress] = useState("");
   const [btcAddress, setBtcAddress] = useState("");
+  const [applePayDetails, setApplePayDetails] = useState("");
+  const [giftCardOptions, setGiftCardOptions] = useState<string[]>(["APPLE", "RAZER_GOLD", "STEAM"]);
   const [ethPrice, setEthPrice] = useState("");
   const [btcPrice, setBtcPrice] = useState("");
   const [registrationPrice, setRegistrationPrice] = useState("300");
@@ -39,7 +41,7 @@ export default function AdminPaymentsPage() {
   const [error, setError] = useState<string | null>(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmUser, setConfirmUser] = useState<PendingUser | null>(null);
-  const [confirmMethod, setConfirmMethod] = useState<"ETH" | "BTC">("ETH");
+  const [confirmMethod, setConfirmMethod] = useState<"ETH" | "BTC" | "APPLE_PAY" | "GIFT_CARD">("ETH");
   const [confirmReference, setConfirmReference] = useState("");
   const [confirmReason, setConfirmReason] = useState("");
   const [confirmingSingle, setConfirmingSingle] = useState(false);
@@ -67,6 +69,12 @@ export default function AdminPaymentsPage() {
         if (settings) {
           setEthAddress(settings.ethAddress || "");
           setBtcAddress(settings.btcAddress || "");
+          setApplePayDetails(settings.applePayDetails || "");
+          setGiftCardOptions(
+            Array.isArray(settings.giftCardOptions) && settings.giftCardOptions.length > 0
+              ? settings.giftCardOptions
+              : ["APPLE", "RAZER_GOLD", "STEAM"]
+          );
           setEthPrice(settings.ethPrice ? settings.ethPrice.toString() : "");
           setBtcPrice(settings.btcPrice ? settings.btcPrice.toString() : "");
           setRegistrationPrice(settings.registrationPrice ? settings.registrationPrice.toString() : "300");
@@ -95,6 +103,8 @@ export default function AdminPaymentsPage() {
         body: JSON.stringify({
           ethAddress: ethAddress || null,
           btcAddress: btcAddress || null,
+          applePayDetails: applePayDetails || null,
+          giftCardOptions,
           ethPrice: ethPrice ? parseFloat(ethPrice) : null,
           btcPrice: btcPrice ? parseFloat(btcPrice) : null,
           registrationPrice: registrationPrice ? parseFloat(registrationPrice) : 300,
@@ -209,6 +219,14 @@ export default function AdminPaymentsPage() {
     } else {
       setSelectedUsers(new Set(users.map((u) => u._id)));
     }
+  }
+
+  function toggleGiftCardOption(option: "APPLE" | "RAZER_GOLD" | "STEAM") {
+    setGiftCardOptions((prev) =>
+      prev.includes(option)
+        ? prev.filter((item) => item !== option)
+        : [...prev, option]
+    );
   }
 
   if (loading) {
@@ -337,6 +355,46 @@ export default function AdminPaymentsPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Apple Pay Section */}
+            <div className="border-b border-white/10 pb-4 mb-4">
+              <h3 className="text-sm text-[var(--accent-gold)] font-medium mb-3">Apple Pay</h3>
+              <div>
+                <label className="block text-sm text-[var(--text-secondary)] mb-1">
+                  Apple Pay Recipient / Instructions
+                </label>
+                <input
+                  value={applePayDetails}
+                  onChange={(e) => setApplePayDetails(e.target.value)}
+                  placeholder="Email/phone/tag to receive Apple Pay"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-white placeholder:text-white/30"
+                />
+              </div>
+            </div>
+
+            {/* Gift Card Section */}
+            <div className="border-b border-white/10 pb-4 mb-4">
+              <h3 className="text-sm text-[var(--accent-gold)] font-medium mb-3">Gift Cards Accepted</h3>
+              <div className="flex flex-wrap gap-2">
+                {(["APPLE", "RAZER_GOLD", "STEAM"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => toggleGiftCardOption(option)}
+                    className={`px-3 py-2 rounded border text-sm transition ${
+                      giftCardOptions.includes(option)
+                        ? "bg-[var(--accent-gold)]/10 border-[var(--accent-gold)] text-[var(--accent-gold)]"
+                        : "bg-white/5 border-white/10 text-white hover:border-white/20"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-[var(--text-secondary)] mt-2">
+                Talents can only submit gift card types selected here.
+              </p>
             </div>
 
             <div className="pt-2">
@@ -490,7 +548,7 @@ export default function AdminPaymentsPage() {
                   Payment Method
                 </label>
                 <div className="flex gap-2">
-                  {(["ETH", "BTC"] as const).map((m) => (
+                  {(["ETH", "BTC", "APPLE_PAY", "GIFT_CARD"] as const).map((m) => (
                     <button
                       key={m}
                       onClick={() => setConfirmMethod(m)}

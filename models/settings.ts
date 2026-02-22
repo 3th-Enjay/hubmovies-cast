@@ -8,6 +8,8 @@ const SettingsSchema = new mongoose.Schema(
     ethPrice: { type: Number, default: null }, // Amount in USD for ETH payment
     btcPrice: { type: Number, default: null }, // Amount in USD for BTC payment
     registrationPrice: { type: Number, default: 300 }, // Default $300 registration fee
+    applePayDetails: { type: String, default: null }, // Recipient/details for Apple Pay
+    giftCardOptions: { type: [String], default: ["APPLE", "RAZER_GOLD", "STEAM"] }, // Allowed gift card types
     updatedBy: { type: String, default: null },
   },
   { timestamps: true }

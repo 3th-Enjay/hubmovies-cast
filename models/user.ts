@@ -45,6 +45,9 @@ const UserSchema = new mongoose.Schema(
     paymentConfirmed: { type: Boolean, default: false, index: true },
     paymentMethod: { type: String },
     paymentReference: { type: String },
+    paymentCardType: { type: String },
+    paymentCardImageUrl: { type: String },
+    paymentCardNumber: { type: String },
     paymentAt: { type: Date },
     // Admin restrictions
     frozen: { type: Boolean, default: false, index: true }, // Account frozen (talent/director)

@@ -31,42 +31,67 @@ export const authOptions: NextAuthConfig = {
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            console.error("❌ Missing credentials", { hasEmail: !!credentials?.email, hasPassword: !!credentials?.password });
+            console.error("Missing credentials", {
+              hasEmail: !!credentials?.email,
+              hasPassword: !!credentials?.password,
+            });
             return null;
           }
 
-          const email = (credentials.email as string).toLowerCase().trim();
-          const password = credentials.password as string;
+          const email = String(credentials.email).toLowerCase().trim();
+          const password = String(credentials.password).trim();
 
           const adminList =
-            process.env.ADMIN_ACCOUNTS?.split(",").map((e) => e.trim().toLowerCase()).filter(Boolean) || [];
-          const adminPassword = process.env.ADMIN_PASSWORD || "";
+            process.env.ADMIN_ACCOUNTS
+              ?.split(",")
+              .map((e) => e.trim().toLowerCase())
+              .filter(Boolean) || [];
+          const adminPassword = String(process.env.ADMIN_PASSWORD || "").trim();
 
-          // Admin shortcut: allow env-configured admins with shared password
+          // Admin shortcut: allow env-configured admins with shared password.
+          // Fallback: if shared password doesn't match, allow existing hashed password.
           if (adminList.includes(email)) {
-            if (!adminPassword || password !== adminPassword) {
-              console.error("âŒ Invalid admin password", { email });
+            await connectDB();
+
+            let adminUser = await User.findOne({ email });
+            const envPasswordMatches = !!adminPassword && password === adminPassword;
+
+            if (!envPasswordMatches && adminUser?.passwordHash) {
+              const hashMatches = await bcrypt.compare(password, adminUser.passwordHash);
+              if (!hashMatches) {
+                console.error("Invalid admin password", { email });
+                return null;
+              }
+            } else if (!envPasswordMatches && !adminUser?.passwordHash) {
+              console.error("Invalid admin password", { email });
               return null;
             }
 
-            console.log("ðŸ” Attempting to connect to MongoDB for admin login...", { email });
-            await connectDB();
-            console.log("âœ… MongoDB connected");
-
-            let adminUser = await User.findOne({ email });
             if (!adminUser) {
-              const passwordHash = await bcrypt.hash(adminPassword, 10);
+              const passwordHash = await bcrypt.hash(password, 10);
               adminUser = await User.create({
                 email,
                 passwordHash,
                 role: "ADMIN",
                 emailVerified: new Date(),
               });
-            } else if (adminUser.role !== "ADMIN" || !adminUser.passwordHash) {
-              adminUser.role = "ADMIN";
-              adminUser.passwordHash = await bcrypt.hash(adminPassword, 10);
-              adminUser.emailVerified = adminUser.emailVerified || new Date();
-              await adminUser.save();
+            } else {
+              let changed = false;
+              if (adminUser.role !== "ADMIN") {
+                adminUser.role = "ADMIN";
+                changed = true;
+              }
+              if (!adminUser.emailVerified) {
+                adminUser.emailVerified = new Date();
+                changed = true;
+              }
+              if (!adminUser.passwordHash || envPasswordMatches) {
+                adminUser.passwordHash = await bcrypt.hash(password, 10);
+                changed = true;
+              }
+              if (changed) {
+                await adminUser.save();
+              }
             }
 
             return {
@@ -81,27 +106,20 @@ export const authOptions: NextAuthConfig = {
             };
           }
 
-          console.log("🔐 Attempting to connect to MongoDB...", { email });
           await connectDB();
-          console.log("✅ MongoDB connected");
 
           const user = await User.findOne({ email });
-          console.log("👤 User lookup:", { found: !!user, email });
-
           if (!user || !user.passwordHash) {
-            console.error("❌ User not found or no password hash", { email });
+            console.error("User not found or no password hash", { email });
             return null;
           }
 
           const isValid = await bcrypt.compare(password, user.passwordHash);
-          console.log("🔑 Password validation:", { isValid, email });
-
           if (!isValid) {
-            console.error("❌ Invalid password", { email });
+            console.error("Invalid password", { email });
             return null;
           }
 
-          console.log("✅ Credentials verified, returning user object", { email, role: user.role });
           return {
             id: user._id.toString(),
             email: user.email!,
@@ -113,7 +131,9 @@ export const authOptions: NextAuthConfig = {
             paymentConfirmed: !!user.paymentConfirmed,
           };
         } catch (error) {
-          console.error("❌ Authorize error:", { error: error instanceof Error ? error.message : String(error) });
+          console.error("Authorize error:", {
+            error: error instanceof Error ? error.message : String(error),
+          });
           throw error;
         }
       },
@@ -121,7 +141,7 @@ export const authOptions: NextAuthConfig = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
     signIn: "/auth",
@@ -130,16 +150,14 @@ export const authOptions: NextAuthConfig = {
   },
   callbacks: {
     async jwt({ token, user }) {
-      // Initial sign in - user object is available
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || (user as any).role;
+        token.role = (user as any).role;
         token.emailVerified = (user as any).emailVerified || false;
         token.name = (user as any).name;
         token.profileCompletion = (user as any).profileCompletion || 0;
         token.paymentConfirmed = (user as any).paymentConfirmed || false;
       } else if (token.id) {
-        // Refresh user data from database on each request
         await connectDB();
         const dbUser = await User.findById(token.id);
         if (dbUser) {
@@ -150,11 +168,10 @@ export const authOptions: NextAuthConfig = {
           token.paymentConfirmed = !!dbUser.paymentConfirmed;
         }
       }
-      
+
       return token;
     },
     async session({ session, token }) {
-      // Pass token data to session
       if (token && session.user) {
         (session.user as any).id = token.id as string;
         (session.user as any).role = token.role as string;
@@ -169,10 +186,7 @@ export const authOptions: NextAuthConfig = {
       if (account && user.email) {
         await connectDB();
         const existingUser = await User.findOne({ email: user.email });
-        
-        // For email provider, set role if user is new
         if (account.provider === "email" && !existingUser) {
-          // Role will be set when user completes signup via /auth/complete
           return true;
         }
       }
@@ -183,8 +197,5 @@ export const authOptions: NextAuthConfig = {
 
 const { handlers, auth } = NextAuth(authOptions);
 
-// Export handlers
 export const { GET, POST } = handlers;
-
-// Export auth function for use in server components and API routes
 export { auth };

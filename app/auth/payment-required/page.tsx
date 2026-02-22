@@ -9,6 +9,8 @@ type PaymentSettings = {
   btcAddress: string | null;
   ethPrice: number | null;
   btcPrice: number | null;
+  applePayDetails: string | null;
+  giftCardOptions: string[];
   registrationPrice: number;
 };
 
@@ -30,6 +32,11 @@ export default function PaymentRequiredPage() {
             btcAddress: s?.btcAddress || null,
             ethPrice: s?.ethPrice || null,
             btcPrice: s?.btcPrice || null,
+            applePayDetails: s?.applePayDetails || null,
+            giftCardOptions:
+              Array.isArray(s?.giftCardOptions) && s.giftCardOptions.length > 0
+                ? s.giftCardOptions
+                : ["APPLE", "RAZER_GOLD", "STEAM"],
             registrationPrice: s?.registrationPrice || 300,
           });
         } else {
@@ -166,9 +173,71 @@ export default function PaymentRequiredPage() {
                 </motion.div>
               )}
 
+              {/* Apple Pay Option */}
+              {settings.applePayDetails && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="bg-white/5 border border-white/10 rounded-lg p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <span className="text-2xl"></span> Apple Pay
+                    </h3>
+                    <div className="text-right">
+                      <div className="text-sm text-[var(--text-secondary)]">
+                        USD Amount: <span className="text-white font-semibold">${settings.registrationPrice}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="bg-black/30 rounded p-4 font-mono text-sm">
+                      <p className="text-white break-all mb-2">{settings.applePayDetails}</p>
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      Send via Apple Pay and keep your payment reference to submit in your payment form.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Gift Card Option */}
+              {settings.giftCardOptions && settings.giftCardOptions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-white/5 border border-white/10 rounded-lg p-6"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <span className="text-2xl">🎁</span> Gift Card
+                    </h3>
+                    <div className="text-right">
+                      <div className="text-sm text-[var(--text-secondary)]">
+                        USD Amount: <span className="text-white font-semibold">${settings.registrationPrice}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {settings.giftCardOptions.map((option) => (
+                        <span key={option} className="px-2 py-1 text-xs rounded border border-white/20 text-white">
+                          {option.replaceAll("_", " ")}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)]">
+                      Submit selected card type, card image, and card number on the payment form for admin review.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
               {!settings.ethAddress && !settings.btcAddress && (
                 <div className="p-4 bg-yellow-500/20 border border-yellow-500/30 rounded text-yellow-400 text-sm">
-                  Payment addresses not configured yet. Please contact support.
+                  Payment methods are not configured yet. Please contact support.
                 </div>
               )}
             </div>

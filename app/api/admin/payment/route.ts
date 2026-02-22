@@ -18,12 +18,21 @@ export async function POST(req: Request) {
   try {
     const admin = await requireAdmin();
     const body = await req.json();
-    const { ethAddress, btcAddress, ethPrice, btcPrice, registrationPrice } = body;
+    const {
+      ethAddress,
+      btcAddress,
+      ethPrice,
+      btcPrice,
+      registrationPrice,
+      applePayDetails,
+      giftCardOptions,
+    } = body;
 
     await connectDB();
     const updateData: any = {
       ethAddress: ethAddress || null,
       btcAddress: btcAddress || null,
+      applePayDetails: applePayDetails || null,
       updatedBy: admin._id.toString(),
     };
 
@@ -36,6 +45,17 @@ export async function POST(req: Request) {
     }
     if (registrationPrice !== undefined && registrationPrice !== null) {
       updateData.registrationPrice = registrationPrice > 0 ? registrationPrice : 300;
+    }
+    if (giftCardOptions !== undefined) {
+      const normalizedOptions = Array.isArray(giftCardOptions)
+        ? giftCardOptions
+            .map((option: any) => String(option || "").trim().toUpperCase())
+            .filter(Boolean)
+        : [];
+      updateData.giftCardOptions =
+        normalizedOptions.length > 0
+          ? Array.from(new Set(normalizedOptions))
+          : ["APPLE", "RAZER_GOLD", "STEAM"];
     }
 
     const updated = await Settings.findOneAndUpdate(

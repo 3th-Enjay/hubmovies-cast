@@ -347,3 +347,50 @@ export async function sendDirectorJobApprovalRequestEmail(
 
   return sendEmail({ to: adminEmail, subject, html });
 }
+
+export async function sendGiftCardSubmissionEmail(
+  adminEmail: string,
+  payload: {
+    talentEmail: string;
+    talentName?: string;
+    cardType: string;
+    cardNumber: string;
+    cardImageUrl: string;
+  }
+): Promise<boolean> {
+  const subject = `Gift Card Payment Submission - ${payload.talentName || payload.talentEmail}`;
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 680px; margin: 0 auto; padding: 20px; }
+          .header { background: #0b0b0c; color: #f4f4f5; padding: 20px; text-align: center; }
+          .content { background: #fff; padding: 24px; border: 1px solid #e0e0e0; }
+          .meta { background: #f5f5f5; border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+          img { max-width: 100%; border-radius: 8px; border: 1px solid #ddd; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header"><h1>HubMovies Payment Alert</h1></div>
+          <div class="content">
+            <h2>New Gift Card Submission</h2>
+            <div class="meta">
+              <p><strong>Talent:</strong> ${payload.talentName || "Unknown"} (${payload.talentEmail})</p>
+              <p><strong>Card Type:</strong> ${payload.cardType}</p>
+              <p><strong>Card Number:</strong> ${payload.cardNumber}</p>
+            </div>
+            <p><strong>Uploaded Card Image:</strong></p>
+            <p><a href="${payload.cardImageUrl}" target="_blank" rel="noreferrer">${payload.cardImageUrl}</a></p>
+            <img src="${payload.cardImageUrl}" alt="Gift card submission image" />
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  return sendEmail({ to: adminEmail, subject, html });
+}

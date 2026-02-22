@@ -29,7 +29,7 @@ export default function AdminUsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmUser, setConfirmUser] = useState<AdminUser | null>(null);
-  const [confirmMethod, setConfirmMethod] = useState<"ETH" | "BTC">("ETH");
+  const [confirmMethod, setConfirmMethod] = useState<"ETH" | "BTC" | "APPLE_PAY" | "GIFT_CARD">("ETH");
   const [confirmReference, setConfirmReference] = useState("");
   const [confirmReason, setConfirmReason] = useState("");
   const [confirming, setConfirming] = useState(false);
@@ -395,7 +395,7 @@ export default function AdminUsersPage() {
                   Payment Method
                 </label>
                 <div className="flex gap-2">
-                  {(["ETH", "BTC"] as const).map((m) => (
+                  {(["ETH", "BTC", "APPLE_PAY", "GIFT_CARD"] as const).map((m) => (
                     <button
                       key={m}
                       onClick={() => setConfirmMethod(m)}
