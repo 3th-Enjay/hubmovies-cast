@@ -67,10 +67,10 @@ function StepZero({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      className="space-y-6"
+      className="space-y-5"
     >
       <div className="text-center">
-        <p className="text-white text-lg mb-2">Complete Your Profile to Apply</p>
+        <p className="text-white text-base sm:text-lg mb-2">Complete Your Profile to Apply</p>
         <p className="text-[var(--text-secondary)] text-sm">
           Your profile must be at least {MIN_REQUIRED}% complete to apply for roles.
         </p>
@@ -113,7 +113,7 @@ function StepZero({
 
       <button
         onClick={onCompleteProfile}
-        className="w-full bg-[var(--accent-gold)] text-black py-3 rounded font-medium hover:opacity-90 transition"
+        className="w-full bg-[var(--accent-gold)] text-black py-3 rounded font-medium text-sm sm:text-base hover:opacity-90 transition"
       >
         Complete Profile
       </button>
@@ -141,7 +141,7 @@ function StepOne({
       exit={{ opacity: 0 }}
       className="space-y-4"
     >
-      <p className="text-white">Confirm your profile details</p>
+      <p className="text-white text-sm sm:text-base">Confirm your profile details</p>
 
       <div className="bg-white/5 p-4 rounded-lg text-sm text-gray-300">
         <p>Name: John Doe</p>
@@ -177,7 +177,7 @@ function StepOne({
 
       <button
         onClick={onNext}
-        className="w-full bg-[var(--accent-gold)] text-black py-2 rounded"
+        className="w-full bg-[var(--accent-gold)] text-black py-2 rounded text-sm sm:text-base"
       >
         Continue
       </button>
@@ -222,7 +222,7 @@ function StepTwo({
       exit={{ opacity: 0 }}
       className="space-y-4"
     >
-      <p className="text-white">Upload your media</p>
+      <p className="text-white text-sm sm:text-base">Upload your media</p>
 
       <input
         type="file"
@@ -239,13 +239,13 @@ function StepTwo({
         Accepted formats: MP4 (max 50MB), JPEG/PNG (max 10MB)
       </p>
 
-      <div className="flex gap-3">
-        <button onClick={onBack} className="flex-1 border py-2 rounded">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button onClick={onBack} className="flex-1 border py-2 rounded text-sm sm:text-base">
           Back
         </button>
         <button
           onClick={onNext}
-          className="flex-1 bg-[var(--accent-gold)] text-black py-2 rounded"
+          className="flex-1 bg-[var(--accent-gold)] text-black py-2 rounded text-sm sm:text-base"
         >
           Next
         </button>
@@ -272,22 +272,22 @@ function StepThree({
       exit={{ opacity: 0 }}
       className="space-y-4"
     >
-      <p className="text-white">Answer casting question</p>
+      <p className="text-white text-sm sm:text-base">Answer casting question</p>
 
       <textarea
         value={answer}
         onChange={(e) => setAnswer(e.target.value)}
         placeholder="Why are you suitable for this role?"
-        className="w-full bg-white/5 p-3 rounded text-white"
+        className="w-full bg-white/5 p-3 rounded text-white text-sm sm:text-base"
       />
 
-      <div className="flex gap-3">
-        <button onClick={onBack} className="flex-1 border py-2 rounded">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button onClick={onBack} className="flex-1 border py-2 rounded text-sm sm:text-base">
           Back
         </button>
         <button
           onClick={onNext}
-          className="flex-1 bg-[var(--accent-gold)] text-black py-2 rounded"
+          className="flex-1 bg-[var(--accent-gold)] text-black py-2 rounded text-sm sm:text-base"
         >
           Review
         </button>
@@ -316,7 +316,7 @@ function StepFour({
       exit={{ opacity: 0 }}
       className="space-y-4"
     >
-      <p className="text-white text-lg">Review your application</p>
+      <p className="text-white text-base sm:text-lg">Review your application</p>
       
       <div className="bg-white/5 p-4 rounded text-sm space-y-2">
         <p className="text-gray-300">Media: {media?.name || "No file uploaded"}</p>
@@ -324,14 +324,14 @@ function StepFour({
         <p className="text-white">{answer || "No answer provided"}</p>
       </div>
 
-      <div className="flex gap-3">
-        <button onClick={onBack} className="flex-1 border py-2 rounded">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <button onClick={onBack} className="flex-1 border py-2 rounded text-sm sm:text-base">
           Back
         </button>
         <button
           onClick={onSubmit}
           disabled={loading}
-          className="flex-1 bg-[var(--accent-gold)] text-black py-2 rounded"
+          className="flex-1 bg-[var(--accent-gold)] text-black py-2 rounded text-sm sm:text-base"
         >
           {loading ? "Submitting..." : "Submit Application"}
         </button>
@@ -348,7 +348,7 @@ function StepFive({ onClose }: { onClose: () => void }) {
       exit={{ opacity: 0 }}
       className="space-y-4 text-center"
     >
-      <p className="text-white text-lg">Application Submitted 🎉</p>
+      <p className="text-white text-base sm:text-lg">Application Submitted</p>
 
       <p className="text-gray-400 text-sm">
         Casting directors will review your application. You'll be notified if
@@ -357,7 +357,7 @@ function StepFive({ onClose }: { onClose: () => void }) {
 
       <button
         onClick={onClose}
-        className="w-full bg-[var(--accent-gold)] text-black py-2 rounded"
+        className="w-full bg-[var(--accent-gold)] text-black py-2 rounded text-sm sm:text-base"
       >
         Close
       </button>
@@ -520,13 +520,13 @@ export default function ApplyFlowModal({
     return (
       <ModalShell onClose={onClose}>
         <div className="space-y-4 text-center">
-          <p className="text-white text-lg">Already Applied</p>
+          <p className="text-white text-base sm:text-lg">Already Applied</p>
           <p className="text-gray-400 text-sm">
             You have already submitted an application for this role. Duplicate applications are not allowed.
           </p>
           <button
             onClick={onClose}
-            className="w-full bg-[var(--accent-gold)] text-black py-2 rounded"
+            className="w-full bg-[var(--accent-gold)] text-black py-2 rounded text-sm sm:text-base"
           >
             Close
           </button>
@@ -540,7 +540,7 @@ export default function ApplyFlowModal({
     return (
       <ModalShell onClose={onClose}>
         <div className="space-y-4 text-center">
-          <p className="text-white text-lg">Checking application status...</p>
+          <p className="text-white text-base sm:text-lg">Checking application status...</p>
         </div>
       </ModalShell>
     );
@@ -550,11 +550,11 @@ export default function ApplyFlowModal({
   if (profileCompletion && !profileCompletion.complete) {
     return (
       <ModalShell onClose={onClose}>
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <p className="text-xs tracking-[0.3em] text-[var(--accent-gold)] mb-2">
             APPLY TO ROLE
           </p>
-          <h3 className="text-xl text-white">{jobTitle}</h3>
+          <h3 className="text-lg sm:text-xl text-white">{jobTitle}</h3>
         </div>
         <StepZero
           score={profileCompletion.score}
@@ -571,11 +571,11 @@ export default function ApplyFlowModal({
   return (
     <ModalShell onClose={onClose}>
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <p className="text-xs tracking-[0.3em] text-[var(--accent-gold)] mb-2">
           APPLY TO ROLE
         </p>
-        <h3 className="text-xl text-white">{jobTitle}</h3>
+        <h3 className="text-lg sm:text-xl text-white">{jobTitle}</h3>
       </div>
 
       <AnimatePresence mode="wait">

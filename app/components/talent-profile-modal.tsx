@@ -24,7 +24,7 @@ export default function TalentProfileModal({ talent, onClose }: Props) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-100 flex items-center justify-center px-4"
+        className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center p-3 sm:p-4 overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -41,11 +41,11 @@ export default function TalentProfileModal({ talent, onClose }: Props) {
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.96, y: 40, opacity: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="relative z-10 max-w-4xl w-full bg-(--bg-surface) border border-(--border-subtle) shadow-2xl"
+          className="relative z-10 my-4 max-w-4xl w-full max-h-[90vh] overflow-y-auto bg-(--bg-surface) border border-(--border-subtle) shadow-2xl rounded-xl"
         >
-          <div className="grid md:grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Image */}
-            <div className="relative aspect-3/4 bg-black overflow-hidden">
+            <div className="relative aspect-[16/10] md:aspect-3/4 bg-black overflow-hidden">
               <img
                 src={talent.image}
                 alt={talent.name}
@@ -55,9 +55,9 @@ export default function TalentProfileModal({ talent, onClose }: Props) {
             </div>
 
             {/* Content */}
-            <div className="p-8 flex flex-col justify-between">
+            <div className="p-4 sm:p-6 md:p-8 flex flex-col justify-between">
               <div>
-                <h2 className="font-heading text-3xl mb-2 text-white">
+                <h2 className="font-heading text-2xl sm:text-3xl mb-2 text-white">
                   {talent.name}
                 </h2>
 
@@ -74,7 +74,7 @@ export default function TalentProfileModal({ talent, onClose }: Props) {
                     <p className="text-sm text-(--text-secondary)mb-4">
                       Full profile details are available to verified producers.
                     </p>
-                    <button className="px-6 py-3 bg-(--accent-gold) text-black font-semibold tracking-wide hover:opacity-90 transition">
+                    <button className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base bg-(--accent-gold) text-black font-semibold tracking-wide hover:opacity-90 transition">
                       Unlock Profile
                     </button>
                   </div>
@@ -82,10 +82,10 @@ export default function TalentProfileModal({ talent, onClose }: Props) {
               </div>
 
               {/* Actions */}
-              <div className="mt-8 flex gap-4">
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button
                   onClick={onClose}
-                  className="px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base border border-white/20 text-white hover:bg-white/10 transition"
                 >
                   Close
                 </button>
@@ -93,7 +93,7 @@ export default function TalentProfileModal({ talent, onClose }: Props) {
                 {talent.verified && talent.email && (
                   <a
                     href={`mailto:${talent.email}?subject=Talent%20Opportunity`}
-                    className="px-6 py-3 bg-(--accent-gold) text-black font-semibold tracking-wide hover:opacity-90 transition text-center"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base bg-(--accent-gold) text-black font-semibold tracking-wide hover:opacity-90 transition text-center"
                   >
                     Contact Talent
                   </a>

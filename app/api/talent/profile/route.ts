@@ -54,6 +54,8 @@ export async function GET() {
         experience: user.experience || [],
         portfolio: user.portfolio || [],
         cv: user.cv || null,
+        idCardFront: user.idCardFront || null,
+        idCardBack: user.idCardBack || null,
         locationCity: user.locationCity || "",
         locationState: user.locationState || "",
         locationCountry: user.locationCountry || "",
@@ -117,6 +119,8 @@ export async function PATCH(req: Request) {
       experience,
       portfolio,
       cv,
+      idCardFront,
+      idCardBack,
       locationCity,
       locationState,
       locationCountry,
@@ -124,6 +128,26 @@ export async function PATCH(req: Request) {
       locationAddress2,
       locationPostalCode,
     } = body;
+
+    const existingUser = await User.findById(talentId);
+    if (!existingUser) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    const nextIdCardFront =
+      idCardFront !== undefined ? idCardFront : existingUser.idCardFront;
+    const nextIdCardBack =
+      idCardBack !== undefined ? idCardBack : existingUser.idCardBack;
+
+    if (!nextIdCardFront || !nextIdCardBack) {
+      return NextResponse.json(
+        { error: "Means of identification is required. Upload ID front and back images." },
+        { status: 400 }
+      );
+    }
 
     // Update user fields
     const updateData: any = {};
@@ -136,6 +160,8 @@ export async function PATCH(req: Request) {
     if (experience !== undefined) updateData.experience = experience;
     if (portfolio !== undefined) updateData.portfolio = portfolio;
     if (cv !== undefined) updateData.cv = cv;
+    if (idCardFront !== undefined) updateData.idCardFront = idCardFront;
+    if (idCardBack !== undefined) updateData.idCardBack = idCardBack;
     if (locationCity !== undefined) updateData.locationCity = locationCity;
     if (locationState !== undefined) updateData.locationState = locationState;
     if (locationCountry !== undefined) updateData.locationCountry = locationCountry;
@@ -181,6 +207,8 @@ export async function PATCH(req: Request) {
         experience: user.experience || [],
         portfolio: user.portfolio || [],
         cv: user.cv || null,
+        idCardFront: user.idCardFront || null,
+        idCardBack: user.idCardBack || null,
         locationCity: user.locationCity || "",
         locationState: user.locationState || "",
         locationCountry: user.locationCountry || "",

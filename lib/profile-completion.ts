@@ -34,6 +34,7 @@ export interface ProfileCompletionResult {
 export function calculateTalentProfileCompletion(user: any): ProfileCompletionResult {
   let score = 0;
   const missing: string[] = [];
+  const hasIdentityDocs = !!(user.idCardFront && user.idCardBack);
 
   // Profile photo (15%)
   if (user.image) {
@@ -92,13 +93,23 @@ export function calculateTalentProfileCompletion(user: any): ProfileCompletionRe
     score += 15;
   }
 
+  // Means of identification (required for unlock)
+  if (!hasIdentityDocs) {
+    missing.push("means of identification (ID front and back)");
+  }
+
   // Ensure score doesn't exceed 100
   score = Math.min(score, 100);
+
+  // Identity docs are compulsory before profile can be considered complete.
+  if (!hasIdentityDocs && score >= MIN_PROFILE_COMPLETION) {
+    score = MIN_PROFILE_COMPLETION - 1;
+  }
 
   return {
     score,
     missing,
-    complete: score >= MIN_PROFILE_COMPLETION,
+    complete: score >= MIN_PROFILE_COMPLETION && hasIdentityDocs,
   };
 }
 

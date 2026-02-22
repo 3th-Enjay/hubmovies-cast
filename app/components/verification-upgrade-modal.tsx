@@ -15,7 +15,7 @@ export default function VerificationUpgradeModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -26,19 +26,19 @@ export default function VerificationUpgradeModal({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-[#030C26] text-white shadow-2xl"
+            className="relative my-4 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#030C26] text-white shadow-2xl"
           >
             {/* Noise + Sheen */}
             <div className="pointer-events-none absolute inset-0 bg-[url('/noise.png')] opacity-[0.04]" />
             <div className="pointer-events-none absolute inset-0 animate-sheen bg-linear-to-r from-transparent via-white/5 to-transparent" />
 
             {/* Header */}
-            <div className="flex items-start justify-between border-b border-white/10 p-6">
+            <div className="flex items-start justify-between border-b border-white/10 p-4 sm:p-6">
               <div>
                 <p className="text-xs uppercase tracking-widest text-white/60">
                   Talent Verification
                 </p>
-                <h2 className="mt-1 text-2xl font-semibold">
+                <h2 className="mt-1 text-xl sm:text-2xl font-semibold">
                   Upgrade Your Profile
                 </h2>
               </div>
@@ -52,9 +52,9 @@ export default function VerificationUpgradeModal({
             </div>
 
             {/* Content */}
-            <div className="space-y-8 p-6">
+            <div className="space-y-6 sm:space-y-8 p-4 sm:p-6">
               {/* Benefits */}
-              <div className="grid grid-cols-2 gap-4 text-sm text-white/80">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm text-white/80">
                 <div>🎬 Priority casting visibility</div>
                 <div>🛡️ Verified talent badge</div>
                 <div>💳 Access to paid roles</div>

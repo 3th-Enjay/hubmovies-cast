@@ -45,23 +45,23 @@ export default function ApplicationDetailModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
       >
         <motion.div
-          className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-(--bg-main) text-white shadow-2xl"
+          className="relative my-4 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-(--bg-main) text-white shadow-2xl"
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 border-b border-white/10 bg-(--bg-main) p-6 z-10">
+          <div className="sticky top-0 border-b border-white/10 bg-(--bg-main) p-4 sm:p-6 z-10">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-heading font-semibold">
+              <h2 className="text-xl sm:text-2xl font-heading font-semibold">
                 Application Details
               </h2>
               <button
@@ -75,7 +75,7 @@ export default function ApplicationDetailModal({
           </div>
 
           {/* Body */}
-          <div className="p-6 space-y-6">
+          <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
             {/* Job Info */}
             {application.job && (
               <div>
@@ -138,7 +138,7 @@ export default function ApplicationDetailModal({
           </div>
 
           {/* Footer */}
-          <div className="border-t border-white/10 p-6">
+          <div className="border-t border-white/10 p-4 sm:p-6">
             <button
               onClick={onClose}
               className="w-full px-4 py-2 border border-white/20 text-white hover:border-white/40 transition font-body text-sm"

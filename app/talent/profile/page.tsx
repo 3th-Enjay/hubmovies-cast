@@ -18,6 +18,9 @@ type ProfileData = {
   skills: string[];
   experience: string[];
   portfolio: string[];
+  cv?: string;
+  idCardFront?: string;
+  idCardBack?: string;
   locationCity?: string;
   locationState?: string;
   locationCountry?: string;
@@ -36,11 +39,14 @@ export default function TalentProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const portfolioInputRef = useRef<HTMLInputElement>(null);
   const cvInputRef = useRef<HTMLInputElement>(null);
+  const idCardFrontInputRef = useRef<HTMLInputElement>(null);
+  const idCardBackInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingPortfolio, setUploadingPortfolio] = useState(false);
+  const [uploadingIdCard, setUploadingIdCard] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -55,6 +61,8 @@ export default function TalentProfilePage() {
     experience: [] as string[],
     portfolio: [] as string[],
     cv: "",
+    idCardFront: "",
+    idCardBack: "",
     locationCity: "",
     locationState: "",
     locationCountry: "",
@@ -84,6 +92,8 @@ export default function TalentProfilePage() {
             experience: data.profile.experience || [],
             portfolio: data.profile.portfolio || [],
             cv: data.profile.cv || "",
+            idCardFront: data.profile.idCardFront || "",
+            idCardBack: data.profile.idCardBack || "",
             locationCity: data.profile.locationCity || "",
             locationState: data.profile.locationState || "",
             locationCountry: data.profile.locationCountry || "",
@@ -274,6 +284,57 @@ export default function TalentProfilePage() {
     }
   };
 
+  const handleIdCardUpload = async (
+    side: "idCardFront" | "idCardBack",
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowedTypes.includes(file.type)) {
+      setError("Invalid ID format. Please upload JPEG or PNG.");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setError("ID image too large. Maximum size is 10MB.");
+      return;
+    }
+
+    setUploadingIdCard(true);
+    setError("");
+
+    try {
+      const payload = new FormData();
+      payload.append("file", file);
+      payload.append("upload_preset", "profile_images");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: payload,
+      });
+
+      if (!res.ok) {
+        setError("Failed to upload ID image. Please try again.");
+        return;
+      }
+
+      const data = await res.json();
+      if (!data?.url) {
+        setError("Failed to upload ID image. Please try again.");
+        return;
+      }
+
+      setFormData((prev) => ({ ...prev, [side]: data.url }));
+    } catch (err) {
+      console.error("Failed to upload ID image:", err);
+      setError("Failed to upload ID image. Please try again.");
+    } finally {
+      setUploadingIdCard(false);
+    }
+  };
+
   const handleRemovePortfolioItem = (url: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -320,6 +381,12 @@ export default function TalentProfilePage() {
     setSaving(true);
     setError("");
     setSuccess(false);
+
+    if (!formData.idCardFront || !formData.idCardBack) {
+      setError("Means of identification is required. Upload ID front and back.");
+      setSaving(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/talent/profile", {
@@ -684,11 +751,91 @@ export default function TalentProfilePage() {
             transition={{ delay: 0.5 }}
             className="p-4 sm:p-6 bg-white/5 border border-white/10 rounded"
           >
+            <h2 className="text-xl font-heading text-white mb-6">Identity Verification</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="p-4 bg-white/5 border border-white/10 rounded">
+                <label className="block text-sm text-[var(--text-secondary)] mb-2 font-body">
+                  ID Card Front <span className="text-[var(--accent-gold)]">*</span>
+                </label>
+                {formData.idCardFront ? (
+                  <div className="space-y-2">
+                    <img
+                      src={formData.idCardFront}
+                      alt="ID card front"
+                      className="w-full h-32 object-cover rounded border border-white/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, idCardFront: "" }))}
+                      className="px-3 py-1 text-xs bg-red-600 text-white rounded"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-sm text-[var(--text-secondary)] mb-2">No image uploaded</p>
+                )}
+                <input
+                  ref={idCardFrontInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={(e) => handleIdCardUpload("idCardFront", e)}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => idCardFrontInputRef.current?.click()}
+                  disabled={uploadingIdCard}
+                  className="px-4 py-2 bg-white/5 border border-white/10 text-white text-sm rounded hover:bg-white/10 transition disabled:opacity-50 font-body"
+                >
+                  {uploadingIdCard ? "Uploading..." : formData.idCardFront ? "Change Front" : "Upload Front"}
+                </button>
+              </div>
+              <div className="p-4 bg-white/5 border border-white/10 rounded">
+                <label className="block text-sm text-[var(--text-secondary)] mb-2 font-body">
+                  ID Card Back <span className="text-[var(--accent-gold)]">*</span>
+                </label>
+                {formData.idCardBack ? (
+                  <div className="space-y-2">
+                    <img
+                      src={formData.idCardBack}
+                      alt="ID card back"
+                      className="w-full h-32 object-cover rounded border border-white/10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, idCardBack: "" }))}
+                      className="px-3 py-1 text-xs bg-red-600 text-white rounded"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-sm text-[var(--text-secondary)] mb-2">No image uploaded</p>
+                )}
+                <input
+                  ref={idCardBackInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png"
+                  onChange={(e) => handleIdCardUpload("idCardBack", e)}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => idCardBackInputRef.current?.click()}
+                  disabled={uploadingIdCard}
+                  className="px-4 py-2 bg-white/5 border border-white/10 text-white text-sm rounded hover:bg-white/10 transition disabled:opacity-50 font-body"
+                >
+                  {uploadingIdCard ? "Uploading..." : formData.idCardBack ? "Change Back" : "Upload Back"}
+                </button>
+              </div>
+            </div>
+
             <h2 className="text-xl font-heading text-white mb-6">Portfolio</h2>
             
             <div className="mb-4">
               <div className="mb-4">
-                <label className="block text-sm text-[var(--text-secondary)] mb-2 font-body">CV / Resume <span className="text-xs text-[var(--text-secondary)]">(PDF/DOC)</span></label>
+                <label className="block text-sm text-[var(--text-secondary)] mb-2 font-body">CV / Resume <span className="text-xs text-[var(--text-secondary)]">(optional, PDF/DOC)</span></label>
                 <div className="flex items-center gap-4">
                   {formData.cv ? (
                     <div className="flex items-center gap-3">

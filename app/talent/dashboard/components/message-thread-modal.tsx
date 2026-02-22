@@ -63,24 +63,24 @@ export default function MessageThreadModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
       >
         <motion.div
-          className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-white/10 bg-[var(--bg-main)] text-white shadow-2xl"
+          className="relative my-4 w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl border border-white/10 bg-[var(--bg-main)] text-white shadow-2xl"
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="border-b border-white/10 p-4">
+          <div className="border-b border-white/10 p-4 sm:p-5">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-heading font-semibold">Messages</h2>
+                <h2 className="text-xl sm:text-2xl font-heading font-semibold">Messages</h2>
                 {application.job && (
                   <p className="text-sm text-[var(--text-secondary)] mt-1">
                     {application.job.title}
@@ -98,7 +98,7 @@ export default function MessageThreadModal({
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
             {loading ? (
               <div className="text-center text-[var(--text-secondary)]">
                 Loading messages...
@@ -114,7 +114,7 @@ export default function MessageThreadModal({
                   className={`flex ${message.senderRole === "director" ? "justify-start" : "justify-end"}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-lg p-4 ${
+                    className={`max-w-[90%] sm:max-w-[80%] rounded-lg p-3 sm:p-4 ${
                       message.senderRole === "director"
                         ? "bg-white/5 border border-white/10"
                         : "bg-[var(--accent-gold)]/20 border border-[var(--accent-gold)]/30"

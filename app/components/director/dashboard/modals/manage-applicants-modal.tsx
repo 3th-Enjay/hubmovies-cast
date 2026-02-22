@@ -70,14 +70,14 @@ export default function ManageApplicantsModal({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 40 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="space-y-6"
+        className="space-y-5 sm:space-y-6"
       >
         {/* Header */}
         <div>
           <p className="text-xs tracking-[0.3em] text-[var(--accent-gold)] mb-2">
             MANAGE APPLICANTS
           </p>
-          <h2 className="text-2xl text-white mb-2">{job.title}</h2>
+          <h2 className="text-xl sm:text-2xl text-white mb-2">{job.title}</h2>
           <p className="text-sm text-[var(--text-secondary)]">
             {applications.length} {applications.length === 1 ? "application" : "applications"}
           </p>

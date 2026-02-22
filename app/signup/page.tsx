@@ -158,6 +158,11 @@ function SignupContent() {
                 ? "Apply for roles and showcase your portfolio"
                 : "Post casting calls and find talent"}
             </p>
+            {role === "TALENT" && (
+              <p className="text-xs text-[var(--accent-gold)] mt-1">
+                Talent registration requires ID card front and back during profile setup.
+              </p>
+            )}
           </div>
 
           {/* Email Input */}

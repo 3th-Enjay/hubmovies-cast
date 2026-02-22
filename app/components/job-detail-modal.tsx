@@ -81,7 +81,7 @@ export default function JobDetailModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-6"
+          className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto"
           onClick={onClose}
         >
           <motion.div
@@ -90,21 +90,21 @@ export default function JobDetailModal({
             exit={{ y: 40, opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            className="relative w-full max-w-2xl bg-[var(--bg-surface)] border border-white/10 p-8"
+            className="relative my-4 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[var(--bg-surface)] border border-white/10 rounded-xl p-4 sm:p-8"
           >
             {/* Header */}
             <div className="mb-6">
               <p className="text-xs tracking-[0.25em] text-[var(--accent-gold)] mb-2">
                 CASTING OPPORTUNITY
               </p>
-              <h3 className="text-2xl text-white mb-2">{job.title}</h3>
+              <h3 className="text-xl sm:text-2xl text-white mb-2">{job.title}</h3>
               <p className="text-sm text-[var(--text-secondary)]">
                 {job.type} · {job.location}
               </p>
             </div>
 
             {/* Meta */}
-            <div className="grid grid-cols-2 gap-6 text-sm mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 text-sm mb-6 sm:mb-8">
               <div>
                 <p className="text-white mb-1">Budget</p>
                 <p className="text-[var(--text-secondary)]">{job.budget}</p>
@@ -116,14 +116,14 @@ export default function JobDetailModal({
             </div>
 
             {/* Description */}
-            <p className="text-[var(--text-secondary)] leading-relaxed mb-8">
+            <p className="text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed mb-6 sm:mb-8">
               {job.description ||
                 "This is a professionally curated casting opportunity from a verified producer."}
             </p>
 
             {/* Trust Section */}
             {job.directorTrustScore !== undefined && (
-              <div className="mb-8 p-4 bg-white/5 border border-white/10 rounded">
+              <div className="mb-6 sm:mb-8 p-3 sm:p-4 bg-white/5 border border-white/10 rounded">
                 {(() => {
                   const trustScore = job.directorTrustScore || 0;
                   const badge = getTrustBadge(trustScore);
@@ -131,7 +131,7 @@ export default function JobDetailModal({
                   
                   return (
                     <>
-                      <div className="flex items-center gap-3 mb-4">
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                         <h4 className="text-sm font-medium text-white font-body">
                           {statusText.title}
                         </h4>
@@ -155,24 +155,24 @@ export default function JobDetailModal({
             )}
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               {status === "unauthenticated" ? (
                 <>
                   <Link
                     href={loginRedirect}
-                    className="px-6 py-3 bg-[var(--accent-gold)] text-black font-medium hover:opacity-90 transition text-center"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base bg-[var(--accent-gold)] text-black font-medium hover:opacity-90 transition text-center"
                   >
                     Sign In to Apply
                   </Link>
                   <Link
                     href={signupRedirect}
-                    className="px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition text-center"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base border border-white/20 text-white hover:bg-white/10 transition text-center"
                   >
                     Sign Up as Talent
                   </Link>
                   <button
                     onClick={onClose}
-                    className="px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base border border-white/20 text-white hover:bg-white/10 transition"
                   >
                     Close
                   </button>
@@ -181,13 +181,13 @@ export default function JobDetailModal({
                 <>
                   <Link
                     href="/talent/profile"
-                    className="px-6 py-3 bg-[var(--accent-gold)] text-black font-medium hover:opacity-90 transition text-center"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base bg-[var(--accent-gold)] text-black font-medium hover:opacity-90 transition text-center"
                   >
                     Complete Profile
                   </Link>
                   <button
                     onClick={onClose}
-                    className="px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base border border-white/20 text-white hover:bg-white/10 transition"
                   >
                     Close
                   </button>
@@ -197,13 +197,13 @@ export default function JobDetailModal({
                   <button
                     onClick={goToPayment}
                     disabled={paymentLoading}
-                    className="px-6 py-3 bg-[var(--accent-gold)] text-black font-medium hover:opacity-90 transition text-center disabled:opacity-60"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base bg-[var(--accent-gold)] text-black font-medium hover:opacity-90 transition text-center disabled:opacity-60"
                   >
                     {paymentLoading ? "Loading..." : "Complete Payment"}
                   </button>
                   <button
                     onClick={onClose}
-                    className="px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base border border-white/20 text-white hover:bg-white/10 transition"
                   >
                     Close
                   </button>
@@ -213,7 +213,7 @@ export default function JobDetailModal({
                   <button
                     onClick={() => setApplyOpen(true)}
                     disabled={hasApplied || loadingStatus}
-                    className={`px-6 py-3 font-medium transition ${
+                    className={`w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base font-medium transition ${
                       hasApplied
                         ? "bg-gray-500 cursor-not-allowed text-gray-300"
                         : "bg-[var(--accent-gold)] text-black hover:opacity-90"
@@ -223,7 +223,7 @@ export default function JobDetailModal({
                   </button>
                   <button
                     onClick={onClose}
-                    className="px-6 py-3 border border-white/20 text-white hover:bg-white/10 transition"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-3 text-sm sm:text-base border border-white/20 text-white hover:bg-white/10 transition"
                   >
                     Close
                   </button>

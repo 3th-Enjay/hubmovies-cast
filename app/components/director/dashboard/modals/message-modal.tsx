@@ -44,14 +44,14 @@ export default function MessageModal({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 40 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="space-y-6"
+        className="space-y-5 sm:space-y-6"
       >
         {/* Header */}
         <div>
           <p className="text-xs tracking-[0.3em] text-[var(--accent-gold)] mb-2">
             SEND MESSAGE
           </p>
-          <h2 className="text-2xl text-white mb-2">
+          <h2 className="text-xl sm:text-2xl text-white mb-2">
             {talentName || `Talent ${talentId.slice(0, 8)}`}
           </h2>
           <p className="text-sm text-[var(--text-secondary)]">
@@ -66,7 +66,7 @@ export default function MessageModal({
             <label className="block text-sm text-[var(--text-secondary)] mb-2 font-body">
               Delivery Method
             </label>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               {(["in-app", "email", "phone"] as const).map((method) => (
                 <button
                   key={method}
@@ -100,7 +100,7 @@ export default function MessageModal({
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t border-white/10">
             <button
               type="button"
               onClick={onClose}

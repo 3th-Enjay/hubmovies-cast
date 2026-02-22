@@ -180,7 +180,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-(--bg-main) p-8">
+    <div className="min-h-screen bg-(--bg-main) p-4 sm:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-heading text-white">Admin: Users</h1>
@@ -192,7 +192,7 @@ export default function AdminUsersPage() {
         </div>
 
         <div className="bg-white/5 border border-white/10 rounded-lg p-4 sm:p-6">
-          <div className="flex gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -266,8 +266,8 @@ export default function AdminUsersPage() {
 
           {/* Profile Modal */}
           {showProfileModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-              <div className="bg-(--bg-main) p-6 rounded-lg w-full max-w-2xl border border-white/10">
+            <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/60 p-3 sm:p-4 overflow-y-auto">
+              <div className="bg-(--bg-main) p-4 sm:p-6 rounded-lg w-full max-w-2xl border border-white/10 max-h-[92vh] overflow-y-auto my-4">
                 <div className="flex justify-between items-start">
                   <h2 className="text-xl text-white mb-2">{profileData?.name || profileData?.email || "Profile"}</h2>
                   <button onClick={closeProfileModal} className="text-(--text-secondary)">Close</button>
@@ -291,10 +291,44 @@ export default function AdminUsersPage() {
                     <div>Role: <span className="text-white">{profileData.role}</span></div>
                     <div>Phone: <span className="text-white">{profileData.phone || '-'}</span></div>
                     <div>Bio: <span className="text-white">{profileData.bio || '-'}</span></div>
-                    <div>Verification: <span className="text-white">{profileData.verificationData ? JSON.stringify(profileData.verificationData) : '-'}</span></div>
+                    <div>Verification Tier: <span className="text-white">{profileData?.verificationData?.verificationTier || "-"}</span></div>
+                    <div>Profile Completion: <span className="text-white">{profileData?.verificationData?.profileCompletion ?? "-"}</span></div>
+                    <div>Email Verified: <span className="text-white">{profileData?.verificationData?.emailVerified ? "Yes" : "No"}</span></div>
+                    {profileData?.role === "TALENT" && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="p-3 bg-white/5 border border-white/10 rounded">
+                          <p className="text-xs text-(--text-secondary) mb-2">ID Front</p>
+                          {profileData?.idCardFront ? (
+                            <a href={profileData.idCardFront} target="_blank" rel="noreferrer" className="block">
+                              <img
+                                src={profileData.idCardFront}
+                                alt="ID front"
+                                className="w-full h-28 object-cover rounded border border-white/10"
+                              />
+                            </a>
+                          ) : (
+                            <p className="text-xs text-(--text-secondary)">Not uploaded</p>
+                          )}
+                        </div>
+                        <div className="p-3 bg-white/5 border border-white/10 rounded">
+                          <p className="text-xs text-(--text-secondary) mb-2">ID Back</p>
+                          {profileData?.idCardBack ? (
+                            <a href={profileData.idCardBack} target="_blank" rel="noreferrer" className="block">
+                              <img
+                                src={profileData.idCardBack}
+                                alt="ID back"
+                                className="w-full h-28 object-cover rounded border border-white/10"
+                              />
+                            </a>
+                          ) : (
+                            <p className="text-xs text-(--text-secondary)">Not uploaded</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     <div>Registered: <span className="text-white">{new Date(profileData.createdAt).toLocaleString()}</span></div>
 
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex flex-col sm:flex-row gap-2 mt-4">
                       <select value={profileData.role} onChange={(e) => { if (confirm(`Change role to ${e.target.value}?`)) { changeRole(profileData._id, e.target.value); setProfileData({...profileData, role: e.target.value}); } }} className="px-3 py-1 bg-white/5 border border-white/10 rounded text-white text-sm">
                         <option value="TALENT">Talent</option>
                         <option value="DIRECTOR">Director</option>

@@ -44,6 +44,8 @@ export async function GET(
       experience: user.experience,
       portfolio: user.portfolio,
       cv: user.cv,
+      idCardFront: user.idCardFront,
+      idCardBack: user.idCardBack,
       emailVerified: user.emailVerified,
       createdAt: user.createdAt,
     };
@@ -54,6 +56,8 @@ export async function GET(
         verificationTier: user.verificationTier,
         profileCompletion: user.profileCompletion,
         emailVerified: user.emailVerified,
+        idCardFront: user.idCardFront || null,
+        idCardBack: user.idCardBack || null,
         // Note: In production, you'd include actual verification documents/links here
         // For now, we return the tier and completion status
       };

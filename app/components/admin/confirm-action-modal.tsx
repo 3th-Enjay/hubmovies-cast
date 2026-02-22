@@ -57,20 +57,20 @@ export default function ConfirmActionModal({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
+        className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onCancel}
       >
         <motion.div
-          className="relative w-full max-w-lg bg-[var(--bg-main)] border border-white/10 rounded-lg shadow-xl p-6"
+          className="relative my-4 w-full max-w-lg max-h-[90vh] overflow-y-auto bg-[var(--bg-main)] border border-white/10 rounded-lg shadow-xl p-4 sm:p-6"
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.95, opacity: 0 }}
           onClick={(e: React.MouseEvent) => e.stopPropagation()}
         >
-          <h2 className="text-2xl font-heading font-semibold text-white mb-4">
+          <h2 className="text-xl sm:text-2xl font-heading font-semibold text-white mb-4">
             Confirm Admin Action
           </h2>
 
@@ -94,7 +94,7 @@ export default function ConfirmActionModal({
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={onCancel}
               className="flex-1 px-4 py-2 border border-white/20 text-white hover:border-white/40 transition font-body text-sm"

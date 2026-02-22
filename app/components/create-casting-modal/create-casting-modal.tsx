@@ -54,13 +54,13 @@ export default function CreateCastingModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-white/10 bg-[#030C26] text-white shadow-2xl"
+            className="relative my-4 w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl border border-white/10 bg-[#030C26] text-white shadow-2xl flex flex-col"
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.98, opacity: 0 }}
@@ -70,11 +70,11 @@ export default function CreateCastingModal({
             <div className="pointer-events-none absolute inset-0 animate-sheen bg-gradient-to-r from-transparent via-white/5 to-transparent" />
 
             {/* Header */}
-            <div className="border-b border-white/10 p-6">
+            <div className="border-b border-white/10 p-4 sm:p-6">
               <p className="text-xs uppercase tracking-widest text-white/60">
                 Create Casting
               </p>
-              <h2 className="mt-1 text-2xl font-semibold">
+              <h2 className="mt-1 text-xl sm:text-2xl font-semibold">
                 {steps[step]}
               </h2>
 
@@ -94,7 +94,7 @@ export default function CreateCastingModal({
             </div>
 
             {/* Body */}
-            <div className="p-6 min-h-[360px]">
+            <div className="p-4 sm:p-6 min-h-0 overflow-y-auto">
               {step === 0 && <StepBasics formData={formData} setFormData={setFormData} />}
               {step === 1 && <StepRole formData={formData} setFormData={setFormData} />}
               {step === 2 && <StepRequirements formData={formData} setFormData={setFormData} />}
@@ -103,10 +103,10 @@ export default function CreateCastingModal({
             </div>
 
             {/* Footer */}
-            <div className="flex justify-between border-t border-white/10 p-6">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-between border-t border-white/10 p-4 sm:p-6">
               <button
                 onClick={step === 0 ? onClose : prev}
-                className="text-sm text-white/60 hover:text-white"
+                className="text-sm text-white/60 hover:text-white border border-white/20 rounded px-4 py-2 sm:border-0 sm:p-0"
               >
                 {step === 0 ? "Cancel" : "Back"}
               </button>
